@@ -1,0 +1,125 @@
+.product-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 4px 0 24px;
+}
+
+// ── Form fields ────────────────────────────────────────────────
+
+.form-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+
+    label {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: var(--p-surface-700);
+    }
+}
+
+.required {
+    color: var(--p-red-500);
+    margin-left: 1px;
+}
+
+.field-error {
+    color: var(--p-red-500);
+    font-size: 0.78rem;
+}
+
+.full-width {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+// ── Final price preview ────────────────────────────────────────
+
+.final-price-preview {
+    padding: 10px 14px;
+    background: var(--p-surface-100);
+    border: 1px solid var(--p-surface-200);
+    border-radius: var(--p-border-radius-md);
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--p-surface-900);
+    font-variant-numeric: tabular-nums;
+}
+
+// ── Image preview ─────────────────────────────────────────────
+
+.image-preview {
+    width: 72px;
+    height: 72px;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 1px solid var(--p-surface-200);
+    display: block;
+    margin-top: 4px;
+}
+
+// ── Toggle row ────────────────────────────────────────────────
+
+.toggle-field {
+    flex-direction: row !important;
+    align-items: center;
+    justify-content: space-between;
+}
+
+// ── Header ────────────────────────────────────────────────────
+
+.drawer-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.drawer-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--p-surface-900);
+}
+
+// ── Footer ────────────────────────────────────────────────────
+
+.drawer-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
+// ── Dialogs ───────────────────────────────────────────────────
+
+.dialog-loading {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--p-text-muted-color);
+    font-size: 0.9rem;
+    padding: 4px 0;
+
+    i { font-size: 1.1rem; }
+}
+
+.discard-text {
+    margin: 0;
+    color: var(--p-surface-700);
+    font-size: 0.9rem;
+    line-height: 1.6;
+}
+
+// ── PrimeNG InputNumber full-width fix ────────────────────────
+
+::ng-deep .product-form {
+    .p-inputnumber {
+        width: 100%;
+    }
+}

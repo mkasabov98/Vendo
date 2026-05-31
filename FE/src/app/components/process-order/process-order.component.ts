@@ -5,9 +5,10 @@ import { SelectModule } from "primeng/select";
 import { FloatLabel } from "primeng/floatlabel";
 import { MessageModule } from "primeng/message";
 import { InputTextModule } from "primeng/inputtext";
+import { TooltipModule } from "primeng/tooltip";
 import { address } from "../../models/address.models";
 import { AddressService } from "../../services/address.service";
-import { firstValueFrom, take } from "rxjs";
+import { firstValueFrom, Subject, take, takeUntil } from "rxjs";
 import { FormsModule } from "@angular/forms";
 import { CartService } from "../../services/cart.service";
 import { Stripe, StripeCardElement } from "@stripe/stripe-js";
@@ -22,6 +23,7 @@ import { Stripe, StripeCardElement } from "@stripe/stripe-js";
         SelectModule,
         FloatLabel,
         InputTextModule,
+        TooltipModule,
     ],
     templateUrl: "./process-order.component.html",
     styleUrl: "./process-order.component.scss",
@@ -32,8 +34,10 @@ export class ProcessOrderComponent implements OnInit, OnDestroy {
 
     private stripe: Stripe | null = null;
     private cardElement: StripeCardElement | null = null;
+    private destroy$ = new Subject<void>();
 
     public currentStep = 1;
+    public hasUnavailableItems = false;
     public addresses: address[] = [];
     public selectedAddress: address | null = null;
     public isProcessing = false;
@@ -61,6 +65,9 @@ export class ProcessOrderComponent implements OnInit, OnDestroy {
         this.cartService.getStripe().then((stripe) => {
             this.stripe = stripe;
         });
+        this.cartService.unavailableItems$.pipe(takeUntil(this.destroy$)).subscribe((val) => {
+            this.hasUnavailableItems = val;
+        });
         this.fetchAddresses();
         this.cartService.getCartProducts().pipe(take(1)).subscribe((res) => {
             this.cartSubtotal = res.totalPrice ?? 0;
@@ -74,6 +81,8 @@ export class ProcessOrderComponent implements OnInit, OnDestroy {
 
     ngOnDestroy(): void {
         this.cardElement?.destroy();
+        this.destroy$.next();
+        this.destroy$.complete();
     }
 
     fetchAddresses() {

@@ -1,7 +1,14 @@
 <div class="product-page-wrapper">
 
     <!-- ── Hero skeleton ─────────────────────────────────────────── -->
-    @if (loadingProduct) {
+    @if (productUnavailable) {
+        <div class="unavailable-state">
+            <i class="pi pi-ban"></i>
+            <h2>This product is no longer available</h2>
+            <p>It may have been removed or is temporarily out of service.</p>
+            <p-button label="Back to Shop" icon="pi pi-arrow-left" routerLink="/e-com" />
+        </div>
+    } @else if (loadingProduct) {
         <div class="hero-skeleton">
             <div class="skeleton-img-col">
                 <p-skeleton height="100%" borderRadius="16px" />
@@ -33,7 +40,7 @@
                 />
                 @if (product.stock === 0) {
                     <span class="stock-badge out-of-stock">Out of stock</span>
-                } @else if (product.stock <= 5) {
+                } @else if (product.stock < 10) {
                     <span class="stock-badge low-stock">Only {{ product.stock }} left</span>
                 }
             </div>

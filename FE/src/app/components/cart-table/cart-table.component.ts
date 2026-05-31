@@ -13,11 +13,12 @@ import { ButtonModule } from "primeng/button";
 import { cartProduct } from "../../models/cart.models";
 import { ProductsService } from "../../services/products.service";
 import { TagModule } from "primeng/tag";
+import { TooltipModule } from "primeng/tooltip";
 import { getInventoryStatus, getInventorySeverity } from "../../utils/stock.utils";
 
 @Component({
     selector: "app-cart-table",
-    imports: [TableModule, ConfirmDialogModule, ButtonModule, TagModule],
+    imports: [TableModule, ConfirmDialogModule, ButtonModule, TagModule, TooltipModule],
     providers: [ConfirmationService],
     templateUrl: "./cart-table.component.html",
     styleUrl: "./cart-table.component.scss",
@@ -33,7 +34,17 @@ export class CartTableComponent implements OnInit, OnDestroy {
 
     get cartSubtotal(): number {
         if (!this.products || !this.products.length) return 0;
-        return this.products.reduce((acc, curr) => acc + curr.quantity! * curr.price, 0);
+        return this.products
+            .filter(p => p.isActive)
+            .reduce((acc, curr) => acc + curr.quantity! * curr.price, 0);
+    }
+
+    get hasUnavailableItems(): boolean {
+        return this.products.some(p => !p.isActive);
+    }
+
+    get unavailableCount(): number {
+        return this.products.filter(p => !p.isActive).length;
     }
 
     get discountAmount(): string {
@@ -54,7 +65,10 @@ export class CartTableComponent implements OnInit, OnDestroy {
         });
 
         this.cartService.cartItemsSubject$.pipe(takeUntil(this.destroy$)).subscribe((count) => {
-            if (count === 0) this.products = [];
+            if (count === 0) {
+                this.products = [];
+                this.cartService.unavailableItems$.next(false);
+            }
         });
 
         this.cartService.discountSubject$.pipe(takeUntil(this.destroy$)).subscribe((discount) => {
@@ -86,6 +100,7 @@ export class CartTableComponent implements OnInit, OnDestroy {
                 .subscribe(
                     (res) => {
                         this.products = res.items;
+                        this.cartService.unavailableItems$.next(this.hasUnavailableItems);
                     },
                     (err) => {
                         this.toastService.show(err.error.message, "warn");
@@ -112,6 +127,7 @@ export class CartTableComponent implements OnInit, OnDestroy {
                 .subscribe(
                     (res) => {
                         this.products = res.items;
+                        this.cartService.unavailableItems$.next(this.hasUnavailableItems);
                     },
                     (err) => {
                         this.toastService.show(err.error.message, "warn");
@@ -164,6 +180,7 @@ export class CartTableComponent implements OnInit, OnDestroy {
         }
 
         this.cartService.cartItemsSubject$.next(this.products.reduce((acc, curr) => acc + curr.quantity!, 0));
+        this.cartService.unavailableItems$.next(this.hasUnavailableItems);
     }
 
     openConfirmDialog(productId: number, prevQuantity: number) {
@@ -189,6 +206,10 @@ export class CartTableComponent implements OnInit, OnDestroy {
                 this.updateCart(productId, prevQuantity);
             },
         });
+    }
+
+    removeUnavailable(productId: number) {
+        this.updateProductQuantity(productId, 0);
     }
 
     scrollToCheckout() {

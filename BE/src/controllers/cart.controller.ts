@@ -22,6 +22,7 @@ export const updateCartProduct = async (req: AuthRequest, res: Response, next: N
 
         const existingProduct = await Product.findByPk(product.productId);
         if (!existingProduct) throw { status: 404, message: "Product with that Id does not exist" };
+        if (!existingProduct.isActive && product.quantity > 0) throw { status: 400, message: "This product is no longer available" };
 
         const [userCart] = await Cart.findOrCreate({ where: { userId: userId } });
 
@@ -159,7 +160,7 @@ export const getAllProductsInCart = async (req: AuthRequest, res: Response, next
                 {
                     model: Product,
                     as: "Product",
-                    attributes: ["name", "finalPrice", "imageUrl", "stock", "starReview"],
+                    attributes: ["name", "finalPrice", "imageUrl", "stock", "starReview", "isActive"],
                     include: [
                         {
                             model: ProductCategory,
@@ -172,6 +173,7 @@ export const getAllProductsInCart = async (req: AuthRequest, res: Response, next
         });
 
         const totalPrice = cartProducts.reduce((acc, curr) => {
+            if (!curr.Product!.isActive) return acc;
             return acc + curr.quantity * curr.Product!.finalPrice;
         }, 0);
 
@@ -184,6 +186,7 @@ export const getAllProductsInCart = async (req: AuthRequest, res: Response, next
             price: x.Product!.finalPrice,
             imageUrl: x.Product!.imageUrl,
             category: x.Product!.ProductCategory.categoryName,
+            isActive: x.Product!.isActive,
         }));
 
         const dc = userCart.CartDiscount;

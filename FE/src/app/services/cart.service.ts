@@ -13,6 +13,7 @@ import { loadStripe, Stripe } from "@stripe/stripe-js";
 export class CartService {
     public cartItemsSubject$ = new BehaviorSubject<number>(0);
     public discountSubject$ = new BehaviorSubject<{ code: string; percentage: number } | null>(null);
+    public unavailableItems$ = new BehaviorSubject<boolean>(false);
     private stripePromise: Promise<Stripe | null>;
 
     constructor(private http: HttpClient, private toastService: ToastService) {

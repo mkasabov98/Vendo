@@ -77,6 +77,10 @@ export const handleStripeWebhook = async (req: WebhookRequest, res, next: NextFu
 
             for (const x of orderProducts) {
                 await Product.decrement("stock", { by: x.quantity, where: { id: x.productId }, transaction });
+                await Product.update(
+                    { isActive: false },
+                    { where: { id: x.productId, stock: 0 }, transaction },
+                );
             }
 
             const userId = parseInt(paymentIntent.metadata.userId);
@@ -226,7 +230,7 @@ export const createPaymentIntent = async (req: AuthRequest, res: Response, next:
                 {
                     model: Product,
                     as: "Product",
-                    attributes: ["stock", "finalPrice", "name"],
+                    attributes: ["stock", "finalPrice", "name", "isActive"],
                 },
             ],
         });
@@ -237,7 +241,9 @@ export const createPaymentIntent = async (req: AuthRequest, res: Response, next:
 
         const errors: string[] = [];
         productsInCart.forEach((x) => {
-            if (x.quantity > x.Product.stock) {
+            if (!x.Product.isActive) {
+                errors.push(`"${x.Product.name}" is no longer available. Please remove it from your cart before checking out.`);
+            } else if (x.quantity > x.Product.stock) {
                 errors.push(
                     `Currently we do not have ${x.quantity} units of ${x.Product.name} in stock. We have ${x.Product.stock} units in stock of that item.`
                 );

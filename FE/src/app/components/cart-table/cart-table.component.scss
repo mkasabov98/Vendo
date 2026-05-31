@@ -55,6 +55,21 @@
     }
 }
 
+.unavailable-banner {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0 12px 8px;
+    padding: 8px 12px;
+    background: var(--p-orange-50);
+    border: 1px solid var(--p-orange-200);
+    border-radius: var(--p-border-radius-md);
+    color: var(--p-orange-700);
+    font-size: 0.85rem;
+
+    i { flex-shrink: 0; }
+}
+
 // Column widths & header alignment
 .col-image   { width: 72px; }
 
@@ -147,6 +162,21 @@ td.col-total { text-align: right; }
             &.col-total   { grid-area: total; align-self: center; text-align: right; padding-top: 8px; }
         }
     }
+}
+
+.unavailable-row {
+    opacity: 0.55;
+}
+
+.unavailable-label {
+    font-size: 0.8rem;
+    color: var(--p-orange-600);
+    font-weight: 500;
+}
+
+.unavailable-total {
+    color: var(--p-text-muted-color);
+    font-weight: 400;
 }
 
 // Compact quantity stepper

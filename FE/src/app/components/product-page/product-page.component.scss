@@ -8,6 +8,36 @@
     scrollbar-width: none;
 }
 
+// ── Unavailable state ──────────────────────────────────────────
+
+.unavailable-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    min-height: 40dvh;
+    text-align: center;
+    color: var(--p-text-muted-color);
+
+    i {
+        font-size: 3rem;
+        opacity: 0.4;
+    }
+
+    h2 {
+        margin: 0;
+        font-size: 1.4rem;
+        font-weight: 700;
+        color: var(--p-surface-800);
+    }
+
+    p {
+        margin: 0;
+        font-size: 0.95rem;
+    }
+}
+
 // ── Breadcrumb ─────────────────────────────────────────────────
 
 ::ng-deep .product-breadcrumb {

@@ -8,6 +8,7 @@ export interface cardProduct {
     starReview: number | null;
     reviewsCount: number;
     categoryId: number;
+    isActive?: boolean;
 }
 
 export interface getProductsParams {
@@ -53,4 +54,5 @@ export interface productDetail {
     starReview: number | null;
     reviewsCount: number;
     ProductCategory: { id: number; categoryName: string };
+    isActive?: boolean;
 }

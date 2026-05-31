@@ -3,12 +3,12 @@ export type InventorySeverity = "success" | "warn" | "danger";
 
 export function getInventoryStatus(stock: number): InventoryStatus {
     if (stock === 0) return "OUTOFSTOCK";
-    if (stock <= 5) return "LOWSTOCK";
+    if (stock < 10) return "LOWSTOCK";
     return "INSTOCK";
 }
 
 export function getInventorySeverity(stock: number): InventorySeverity {
     if (stock === 0) return "danger";
-    if (stock <= 5) return "warn";
+    if (stock < 10) return "warn";
     return "success";
 }

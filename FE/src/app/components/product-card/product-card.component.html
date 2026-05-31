@@ -11,7 +11,7 @@
 
         @if (product.stock === 0) {
             <span class="stock-badge out-of-stock">Out of stock</span>
-        } @else if (product.stock <= 5) {
+        } @else if (product.stock < 10) {
             <span class="stock-badge low-stock">Only {{ product.stock }} left</span>
         }
 
@@ -20,7 +20,7 @@
                 <p-button
                     icon="pi pi-cart-plus"
                     label="Quick Add"
-                    [disabled]="product.stock === 0"
+                    [disabled]="product.stock === 0 || product.isActive === false"
                     (onClick)="addToCart($event)"
                     size="small"
                     styleClass="quick-add-btn"
@@ -54,7 +54,7 @@
             <span class="price">${{ product.finalPrice }}</span>
             <p-button
                 icon="pi pi-cart-plus"
-                [disabled]="loggedUser.role === UserRoles.Admin || product.stock === 0"
+                [disabled]="loggedUser.role === UserRoles.Admin || product.stock === 0 || product.isActive === false"
                 (onClick)="addToCart($event)"
                 [rounded]="true"
                 size="small"
