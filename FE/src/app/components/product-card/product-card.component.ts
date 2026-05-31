@@ -52,6 +52,7 @@ export class ProductCardComponent implements OnInit, OnDestroy {
 
     addToCart(event$: Event) {
         event$.stopPropagation();
+        if (this.product.stock === 0 || this.product.isActive === false) return;
         this.cartService
             .addToCart(this.product.id, 1, this.product.stock, this.loggedUser.id === NO_USER.id)
             .pipe(take(1))

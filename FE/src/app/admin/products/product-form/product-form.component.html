@@ -1,0 +1,198 @@
+<p-drawer
+    [(visible)]="visible"
+    position="right"
+    [modal]="true"
+    [dismissible]="true"
+    [showCloseIcon]="false"
+    [style]="{ width: '560px' }"
+    styleClass="product-form-drawer"
+    (onHide)="onDrawerHide()"
+>
+    <ng-template #header>
+        <div class="drawer-header">
+            <span class="drawer-title">{{ drawerTitle }}</span>
+            <p-button
+                icon="pi pi-times"
+                severity="secondary"
+                [text]="true"
+                [rounded]="true"
+                size="small"
+                (onClick)="requestClose()"
+            />
+        </div>
+    </ng-template>
+
+    <form [formGroup]="form" class="product-form">
+
+        <div class="form-field">
+            <label>Name <span class="required">*</span></label>
+            <input pInputText formControlName="name" placeholder="Product name" class="full-width" />
+            @if (form.get('name')?.invalid && form.get('name')?.touched) {
+                <small class="field-error">Name is required</small>
+            }
+        </div>
+
+        <div class="form-field">
+            <label>Description <span class="required">*</span></label>
+            <textarea
+                pTextarea
+                formControlName="description"
+                rows="3"
+                placeholder="Product description"
+                class="full-width"
+                [autoResize]="true"
+            ></textarea>
+            @if (form.get('description')?.invalid && form.get('description')?.touched) {
+                <small class="field-error">Description is required</small>
+            }
+        </div>
+
+        <div class="form-field">
+            <label>Category <span class="required">*</span></label>
+            <p-select
+                [options]="categoryOptions"
+                optionLabel="label"
+                optionValue="value"
+                formControlName="productCategoryId"
+                placeholder="Select category"
+                [style]="{ width: '100%' }"
+            />
+            @if (form.get('productCategoryId')?.invalid && form.get('productCategoryId')?.touched) {
+                <small class="field-error">Category is required</small>
+            }
+        </div>
+
+        <div class="form-row">
+            <div class="form-field">
+                <label>Supply Price <span class="required">*</span></label>
+                <p-inputnumber
+                    formControlName="supplyPrice"
+                    mode="currency"
+                    currency="USD"
+                    [minFractionDigits]="2"
+                    [min]="0.01"
+                    placeholder="0.00"
+                    [style]="{ width: '100%' }"
+                />
+                @if (form.get('supplyPrice')?.invalid && form.get('supplyPrice')?.touched) {
+                    <small class="field-error">Required, min $0.01</small>
+                }
+            </div>
+            <div class="form-field">
+                <label>Margin <span class="required">*</span></label>
+                <p-inputnumber
+                    formControlName="margin"
+                    suffix="%"
+                    [min]="0"
+                    placeholder="0"
+                    [style]="{ width: '100%' }"
+                />
+                @if (form.get('margin')?.invalid && form.get('margin')?.touched) {
+                    <small class="field-error">Required, min 0%</small>
+                }
+            </div>
+        </div>
+
+        <div class="form-field">
+            <label>Final Price</label>
+            <div class="final-price-preview">{{ finalPricePreview | currency }}</div>
+        </div>
+
+        <div class="form-field">
+            <label>Stock <span class="required">*</span></label>
+            <p-inputnumber
+                formControlName="stock"
+                [min]="0"
+                [showButtons]="true"
+                placeholder="0"
+                [style]="{ width: '100%' }"
+            />
+            @if (form.get('stock')?.invalid && form.get('stock')?.touched) {
+                <small class="field-error">Required, min 0</small>
+            }
+        </div>
+
+        <div class="form-field">
+            <label>Image URL</label>
+            <input pInputText formControlName="imageUrl" placeholder="https://..." class="full-width" />
+            @if (form.get('imageUrl')?.value) {
+                <img
+                    [src]="form.get('imageUrl')?.value"
+                    class="image-preview"
+                    (error)="onImageError($event)"
+                    alt="Product preview"
+                />
+            }
+        </div>
+
+        <div class="form-field toggle-field">
+            <label>Active on storefront</label>
+            <p-toggleswitch formControlName="isActive" />
+        </div>
+
+    </form>
+
+    <ng-template #footer>
+        <div class="drawer-footer">
+            <p-button
+                label="Cancel"
+                severity="secondary"
+                [text]="true"
+                (onClick)="requestClose()"
+            />
+            <p-button
+                [label]="mode === 'edit' ? 'Save Changes' : 'Create Product'"
+                icon="pi pi-check"
+                [loading]="saving"
+                [disabled]="form.invalid"
+                (onClick)="submit()"
+            />
+        </div>
+    </ng-template>
+</p-drawer>
+
+<p-dialog
+    [(visible)]="showStockZeroWarning"
+    [modal]="true"
+    [closable]="false"
+    header="Setting stock to 0"
+    [style]="{ width: '400px' }"
+>
+    @if (stockZeroLoading) {
+        <div class="dialog-loading">
+            <i class="pi pi-spin pi-spinner"></i>
+            <span>Checking cart usage…</span>
+        </div>
+    } @else {
+        <p class="discard-text">
+            This product will be set to <strong>inactive</strong> and hidden from the storefront.
+            @if (stockZeroCartCount > 0) {
+                It is currently in <strong>{{ stockZeroCartCount }}</strong>
+                active cart{{ stockZeroCartCount === 1 ? '' : 's' }}.
+            }
+        </p>
+    }
+    <ng-template #footer>
+        <p-button label="Cancel" severity="secondary" [text]="true" (onClick)="cancelStockZeroSave()" />
+        <p-button
+            label="Save anyway"
+            severity="danger"
+            [loading]="stockZeroLoading"
+            (onClick)="confirmStockZeroSave()"
+        />
+    </ng-template>
+</p-dialog>
+
+<p-dialog
+    [(visible)]="showDiscardConfirm"
+    [modal]="true"
+    [closable]="false"
+    header="Discard changes?"
+    [style]="{ width: '360px' }"
+>
+    <p class="discard-text">You have unsaved changes. If you close now they will be lost.</p>
+    <ng-template #footer>
+        <p-button label="Keep Editing" severity="secondary" [text]="true" (onClick)="cancelDiscard()" />
+        <p-button label="Discard" severity="danger" (onClick)="confirmDiscard()" />
+    </ng-template>
+</p-dialog>

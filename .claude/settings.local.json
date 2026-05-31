@@ -37,7 +37,9 @@
       "Bash(Get-ChildItem \"C:\\\\Users\\\\User\\\\Desktop\\\\e-commerce\\\\FE\\\\src\\\\app\\\\guards\")",
       "Bash(Get-ChildItem -Path \"C:\\\\Users\\\\User\\\\Desktop\\\\e-commerce\" -Directory)",
       "PowerShell(ls \"C:\\\\Users\\\\User\\\\Desktop\\\\e-commerce\\\\BE\\\\src\" -Recurse -Directory | Select-Object FullName | ForEach-Object {$_.FullName.Replace\\('C:\\\\Users\\\\User\\\\Desktop\\\\e-commerce\\\\BE\\\\src\\\\', ''\\)})",
-      "Bash(grep -n \"^import.*style\\\\|style\\\\$1\\\\b\" /c/Users/User/Desktop/e-commerce/FE/node_modules/primeng/fesm2022/primeng-datepicker.mjs)"
+      "Bash(grep -n \"^import.*style\\\\|style\\\\$1\\\\b\" /c/Users/User/Desktop/e-commerce/FE/node_modules/primeng/fesm2022/primeng-datepicker.mjs)",
+      "Bash(Get-ChildItem *)",
+      "Bash(Select-Object -ExpandProperty FullName)"
     ]
   },
   "enableAllProjectMcpServers": true

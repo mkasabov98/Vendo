@@ -14,9 +14,10 @@ interface ProductAttributes {
     stock: number; // quantity in stock
     starReview: number;
     reviewsCount: number;
+    isActive: boolean;
 }
 
-export interface ProductCreationAttributes extends Optional<ProductAttributes, "id" | "finalPrice" | "imageUrl" | "stock" | "starReview"> {}
+export interface ProductCreationAttributes extends Optional<ProductAttributes, "id" | "finalPrice" | "imageUrl" | "stock" | "starReview" | "isActive"> {}
 
 export class Product extends Model<ProductAttributes, ProductCreationAttributes> implements ProductAttributes {
     public id!: number;
@@ -30,6 +31,7 @@ export class Product extends Model<ProductAttributes, ProductCreationAttributes>
     public stock!: number;
     public starReview!: number;
     public reviewsCount!: number;
+    public isActive!: boolean;
 
     public ProductCategory?: ProductCategory;
 
@@ -58,7 +60,7 @@ Product.init(
             allowNull: false,
         },
         description: {
-            type: DataTypes.STRING,
+            type: DataTypes.TEXT,
             allowNull: false,
         },
         supplyPrice: {
@@ -74,7 +76,7 @@ Product.init(
             allowNull: false,
         },
         imageUrl: {
-            type: DataTypes.STRING,
+            type: DataTypes.TEXT,
             allowNull: false,
             defaultValue: "https://s13emagst.akamaized.net/products/92844/92843211/images/res_dbe5508e65ad2167a08d5b3d0dc6b4fd.jpg",
         },
@@ -91,6 +93,11 @@ Product.init(
             type: DataTypes.INTEGER.UNSIGNED,
             allowNull: false,
         },
+        isActive: {
+            type: DataTypes.BOOLEAN,
+            allowNull: false,
+            defaultValue: true,
+        },
     },
     {
         sequelize,
@@ -101,5 +108,7 @@ Product.init(
 
 Product.beforeValidate((product: Product) => {
     product.stock = product.stock || 0;
-    product.finalPrice = product.supplyPrice + product.supplyPrice * (product.margin / 100);
+    const sp = Number(product.supplyPrice);
+    const m = Number(product.margin);
+    product.finalPrice = sp * (1 + m / 100);
 });

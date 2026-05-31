@@ -105,13 +105,17 @@
 
             <div class="step-actions">
                 <app-create-address (onAddressCreate)="onAddressCreate()" />
-                <p-button
-                    label="Continue"
-                    icon="pi pi-arrow-right"
-                    iconPos="right"
-                    [disabled]="!selectedAddress"
-                    (onClick)="onProceedToPayment()"
-                />
+                <span
+                    [pTooltip]="hasUnavailableItems ? 'Remove unavailable cart items before checking out' : ''"
+                    tooltipPosition="top">
+                    <p-button
+                        label="Continue"
+                        icon="pi pi-arrow-right"
+                        iconPos="right"
+                        [disabled]="!selectedAddress || hasUnavailableItems"
+                        (onClick)="onProceedToPayment()"
+                    />
+                </span>
             </div>
         </div>
     }

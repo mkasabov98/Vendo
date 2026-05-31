@@ -50,7 +50,7 @@ export const getAllProducts = async (req: Request, res: Response, next: NextFunc
     const params: ProductQueryParams = getQueryParams(req);
     const { limit, offset, categories, sortBy, searchString } = params;
 
-    const whereClause: any = {};
+    const whereClause: any = { isActive: true };
     let orderClause: any = [["id", "ASC"]];
     let isAggregating: boolean = false;
 
@@ -112,7 +112,7 @@ export const getSpecificProducts = async (req: Request, res: Response, next: Nex
             where: {
                 id: updatedProductsIds,
             },
-            attributes: ["id", "stock", "starReview", "name", "finalPrice", "imageUrl"],
+            attributes: ["id", "stock", "starReview", "name", "finalPrice", "imageUrl", "isActive"],
             include: [
                 {
                     model: ProductCategory,
@@ -130,6 +130,7 @@ export const getSpecificProducts = async (req: Request, res: Response, next: Nex
             price: x.finalPrice,
             imageUrl: x.imageUrl,
             category: x.ProductCategory.categoryName,
+            isActive: x.isActive,
         }));
 
         res.status(200).json({items: flattedProducts})
@@ -141,7 +142,8 @@ export const getSpecificProducts = async (req: Request, res: Response, next: Nex
 // GET "/app/products/:productId"
 export const getProductById = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const product = await Product.findByPk(req.params.productId, {
+        const product = await Product.findOne({
+            where: { id: req.params.productId, isActive: true },
             attributes: ["id", "name", "description", "finalPrice", "imageUrl", "stock", "starReview", "reviewsCount"],
             include: [{ model: ProductCategory, as: "ProductCategory", attributes: ["id", "categoryName"] }],
         });

@@ -1,15 +1,32 @@
 <div class="cart-table-wrapper">
     <div class="header-wrapper">
         <span class="header">Products in cart:</span>
-        <p-button
-            class="checkout-btn"
-            label="Checkout"
-            icon="pi pi-arrow-down"
-            iconPos="right"
-            size="small"
-            (onClick)="scrollToCheckout()"
-        />
+        <span
+            [pTooltip]="hasUnavailableItems ? 'Remove unavailable items before checking out' : ''"
+            tooltipPosition="bottom">
+            <p-button
+                class="checkout-btn"
+                label="Checkout"
+                icon="pi pi-arrow-down"
+                iconPos="right"
+                size="small"
+                [disabled]="hasUnavailableItems"
+                (onClick)="scrollToCheckout()"
+            />
+        </span>
     </div>
+
+    @if (hasUnavailableItems) {
+        <div class="unavailable-banner">
+            <i class="pi pi-exclamation-triangle"></i>
+            <span>
+                {{ unavailableCount }} item{{ unavailableCount === 1 ? '' : 's' }}
+                in your cart {{ unavailableCount === 1 ? 'is' : 'are' }} no longer available
+                and won't be included in your order.
+            </span>
+        </div>
+    }
+
     <div class="table-wrapper">
         <p-table [value]="products" styleClass="cart-products-table">
             <ng-template #header>
@@ -20,33 +37,54 @@
                 </tr>
             </ng-template>
             <ng-template #body let-product>
-                <tr class="table-row">
+                <tr class="table-row" [class.unavailable-row]="!product.isActive">
                     <td class="col-image product-img-link" (click)="navigateToProduct(product.productId)">
                         <img [src]="product.imageUrl" [alt]="product.name" (error)="onImageError($event)" />
                     </td>
                     <td class="col-product">
                         <div class="product-content">
                             <span class="product-name">{{ product.name }}</span>
-                            <div class="product-meta">
-                                <span class="product-unit-price">${{ product.price }} each</span>
-                                <p-tag [value]="product.inventoryStatus" [severity]="product.severityStatus" />
-                            </div>
+                            @if (!product.isActive) {
+                                <span class="unavailable-label">No longer available</span>
+                            } @else {
+                                <div class="product-meta">
+                                    <span class="product-unit-price">${{ product.price }} each</span>
+                                    <p-tag [value]="product.inventoryStatus" [severity]="product.severityStatus" />
+                                </div>
+                            }
                         </div>
                     </td>
                     <td class="col-qty">
-                        <div class="qty-stepper">
-                            <button class="qty-btn" (click)="handleAction(product.productId, product.quantity, 'decrement')">
-                                <i class="pi pi-minus"></i>
-                            </button>
-                            <span class="qty-value">{{ product.quantity }}</span>
-                            <button class="qty-btn"
-                                [disabled]="product.quantity >= product.stock"
-                                (click)="handleAction(product.productId, product.quantity, 'increment')">
-                                <i class="pi pi-plus"></i>
-                            </button>
-                        </div>
+                        @if (!product.isActive) {
+                            <p-button
+                                label="Remove"
+                                icon="pi pi-trash"
+                                severity="danger"
+                                [text]="true"
+                                size="small"
+                                (onClick)="removeUnavailable(product.productId)"
+                            />
+                        } @else {
+                            <div class="qty-stepper">
+                                <button class="qty-btn" (click)="handleAction(product.productId, product.quantity, 'decrement')">
+                                    <i class="pi pi-minus"></i>
+                                </button>
+                                <span class="qty-value">{{ product.quantity }}</span>
+                                <button class="qty-btn"
+                                    [disabled]="product.quantity >= product.stock"
+                                    (click)="handleAction(product.productId, product.quantity, 'increment')">
+                                    <i class="pi pi-plus"></i>
+                                </button>
+                            </div>
+                        }
                     </td>
-                    <td class="col-total">${{ (product.price * product.quantity).toFixed(2) }}</td>
+                    <td class="col-total">
+                        @if (!product.isActive) {
+                            <span class="unavailable-total">—</span>
+                        } @else {
+                            ${{ (product.price * product.quantity).toFixed(2) }}
+                        }
+                    </td>
                 </tr>
             </ng-template>
         </p-table>

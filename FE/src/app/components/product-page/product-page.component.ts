@@ -65,6 +65,7 @@ export class ProductPageComponent implements OnInit, OnDestroy {
     public canReview: boolean | null = null;
     public loadingProduct = true;
     public loadingReviews = true;
+    public productUnavailable = false;
     public submittingReview = false;
     public editingReview = false;
 
@@ -113,6 +114,7 @@ export class ProductPageComponent implements OnInit, OnDestroy {
 
     loadProduct(id: number) {
         this.loadingProduct = true;
+        this.productUnavailable = false;
         this.productsService
             .getProductById(id)
             .pipe(take(1))
@@ -129,7 +131,10 @@ export class ProductPageComponent implements OnInit, OnDestroy {
                     ];
                     this.loadingProduct = false;
                 },
-                error: () => this.router.navigate(["/e-com"]),
+                error: () => {
+                    this.loadingProduct = false;
+                    this.productUnavailable = true;
+                },
             });
     }
 
@@ -202,7 +207,7 @@ export class ProductPageComponent implements OnInit, OnDestroy {
     }
 
     addToCart() {
-        if (!this.product || this.product.stock === 0) return;
+        if (!this.product || this.product.stock === 0 || this.product.isActive === false) return;
         this.cartService
             .addToCart(this.product.id, this.quantity, this.product.stock, this.loggedUser.id === NO_USER.id)
             .pipe(take(1))
