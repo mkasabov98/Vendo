@@ -75,6 +75,7 @@ export const getAllProducts = async (req: Request, res: Response, next: NextFunc
             limit,
             offset,
             attributes: ["id", "name", "description", "finalPrice", "imageUrl", "stock", "starReview", "reviewsCount", "productCategoryId"],
+            include: [{ model: ProductCategory, as: "ProductCategory", where: { isActive: true }, required: true, attributes: [] }],
         };
 
         const countResult = await Product.findAndCountAll(queryOptions);
@@ -117,7 +118,7 @@ export const getSpecificProducts = async (req: Request, res: Response, next: Nex
                 {
                     model: ProductCategory,
                     as: "ProductCategory",
-                    attributes: ["categoryName"],
+                    attributes: ["categoryName", "isActive"],
                 },
             ],
         });
@@ -130,7 +131,7 @@ export const getSpecificProducts = async (req: Request, res: Response, next: Nex
             price: x.finalPrice,
             imageUrl: x.imageUrl,
             category: x.ProductCategory.categoryName,
-            isActive: x.isActive,
+            isActive: x.isActive && (x.ProductCategory?.isActive !== false),
         }));
 
         res.status(200).json({items: flattedProducts})
@@ -145,10 +146,10 @@ export const getProductById = async (req: Request, res: Response, next: NextFunc
         const product = await Product.findOne({
             where: { id: req.params.productId, isActive: true },
             attributes: ["id", "name", "description", "finalPrice", "imageUrl", "stock", "starReview", "reviewsCount"],
-            include: [{ model: ProductCategory, as: "ProductCategory", attributes: ["id", "categoryName"] }],
+            include: [{ model: ProductCategory, as: "ProductCategory", where: { isActive: true }, required: true, attributes: ["id", "categoryName"] }],
         });
         if (!product) {
-            throw { status: 400, message: "Item does not exist" };
+            throw { status: 404, message: "Item does not exist" };
         }
         res.status(200).json(product);
     } catch (error) {
@@ -160,6 +161,7 @@ export const getProductById = async (req: Request, res: Response, next: NextFunc
 export const getAllCategories = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const categories = await ProductCategory.findAll({
+            where: { isActive: true },
             attributes: ["id", "categoryName"],
         });
         res.status(200).json(categories);

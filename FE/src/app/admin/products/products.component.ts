@@ -15,11 +15,10 @@ import { InputIconModule } from 'primeng/inputicon';
 import { TooltipModule } from 'primeng/tooltip';
 import { DialogModule } from 'primeng/dialog';
 import { AdminProductsService } from '../services/admin-products.service';
+import { AdminCategoriesService } from '../services/admin-categories.service';
 import { AdminProduct, AdminProductsParams } from '../models/admin-products.models';
-import { ProductsService } from '../../services/products.service';
 import { ToastService } from '../../services/toast.service';
 import { getInventorySeverity } from '../../utils/stock.utils';
-import { productCategory } from '../../models/products.models';
 
 @Component({
     selector: 'app-admin-products',
@@ -98,16 +97,31 @@ export class AdminProductsComponent implements OnInit, OnDestroy {
     showBulkActivateConfirm = false;
     bulkActivateLoading = false;
 
+    get bulkActivateEligible(): AdminProduct[] {
+        return this.selectedProducts.filter(p => p.stock > 0 && p.ProductCategory?.isActive !== false);
+    }
+
+    get bulkActivateSkippedStock(): number {
+        return this.selectedProducts.filter(p => p.stock === 0).length;
+    }
+
+    get bulkActivateSkippedCategory(): number {
+        return this.selectedProducts.filter(p => p.stock > 0 && p.ProductCategory?.isActive === false).length;
+    }
+
     get canBulkActivate(): boolean {
-        return this.selectedProducts.length > 0 && this.selectedProducts.every(p => p.stock > 0);
+        return this.bulkActivateEligible.length > 0;
     }
 
     get bulkActivateTooltip(): string {
-        const zeroCount = this.selectedProducts.filter(p => p.stock === 0).length;
-        if (zeroCount > 0) {
-            return `${zeroCount} item${zeroCount === 1 ? '' : 's'} with 0 stock — cannot activate`;
-        }
-        return 'Set selected products to active';
+        const skippedStock = this.bulkActivateSkippedStock;
+        const skippedCat = this.bulkActivateSkippedCategory;
+        const reasons: string[] = [];
+        if (skippedStock > 0) reasons.push(`${skippedStock} with 0 stock`);
+        if (skippedCat > 0) reasons.push(`${skippedCat} in inactive categor${skippedCat === 1 ? 'y' : 'ies'}`);
+        if (reasons.length === 0) return 'Set selected products to active';
+        if (this.bulkActivateEligible.length === 0) return `Cannot activate: ${reasons.join(', ')}`;
+        return `${reasons.join(', ')} will be skipped`;
     }
 
     private searchSubject = new Subject<string>();
@@ -115,13 +129,16 @@ export class AdminProductsComponent implements OnInit, OnDestroy {
 
     constructor(
         private adminProductsService: AdminProductsService,
-        private productsService: ProductsService,
+        private adminCategoriesService: AdminCategoriesService,
         private toastService: ToastService,
     ) {}
 
     ngOnInit() {
-        this.productsService.getCategories().pipe(take(1)).subscribe((cats: productCategory[]) => {
-            this.categoryOptions = cats.map((c) => ({ label: c.categoryName, value: c.id }));
+        this.adminCategoriesService.getCategories().pipe(take(1)).subscribe((cats) => {
+            this.categoryOptions = cats.map((c) => ({
+                label: c.isActive ? c.categoryName : `${c.categoryName} (Inactive)`,
+                value: c.id,
+            }));
         });
 
         this.searchSubject.pipe(
@@ -342,12 +359,18 @@ export class AdminProductsComponent implements OnInit, OnDestroy {
 
     confirmBulkActivate() {
         this.bulkActivateLoading = true;
-        const ids = this.selectedProducts.map(p => p.id);
+        const eligible = this.bulkActivateEligible;
+        const ids = eligible.map(p => p.id);
+        const totalSelected = this.selectedProducts.length;
         this.adminProductsService.bulkUpdateProducts(ids, { isActive: true }).pipe(take(1)).subscribe({
             next: () => {
                 this.bulkActivateLoading = false;
                 this.showBulkActivateConfirm = false;
-                this.toastService.show(`${ids.length} product(s) set to active`, 'success');
+                const skipped = totalSelected - ids.length;
+                const msg = skipped > 0
+                    ? `${ids.length} product(s) set to active, ${skipped} skipped`
+                    : `${ids.length} product(s) set to active`;
+                this.toastService.show(msg, 'success');
                 this.selectedProducts = [];
                 this.resetAndLoad();
             },
