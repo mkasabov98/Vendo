@@ -13,7 +13,7 @@ export interface AdminProduct {
     createdAt: string;
     updatedAt: string;
     productCategoryId: number;
-    ProductCategory: { id: number; categoryName: string };
+    ProductCategory: { id: number; categoryName: string; isActive: boolean };
 }
 
 export interface AdminProductsParams {

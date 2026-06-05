@@ -177,6 +177,13 @@
     text-overflow: ellipsis;
 }
 
+.category-cell {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    align-items: flex-start;
+}
+
 .category-badge {
     display: inline-block;
     padding: 3px 10px;
@@ -186,6 +193,11 @@
     font-size: 0.78rem;
     font-weight: 500;
     white-space: nowrap;
+}
+
+::ng-deep .cat-inactive-tag {
+    font-size: 0.68rem !important;
+    padding: 1px 6px !important;
 }
 
 .numeric {
@@ -246,6 +258,14 @@
     border-radius: var(--p-border-radius-md);
     color: var(--p-orange-700);
     font-size: 0.85rem;
+}
+
+.skip-reasons {
+    margin: 8px 0 0;
+    padding-left: 20px;
+    color: var(--p-surface-600);
+    font-size: 0.85rem;
+    line-height: 1.7;
 }
 
 // ── Empty state ────────────────────────────────────────────────

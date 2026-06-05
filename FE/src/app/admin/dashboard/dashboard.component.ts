@@ -9,9 +9,8 @@ import { SkeletonModule } from 'primeng/skeleton';
 import { TagModule } from 'primeng/tag';
 import { DashboardService } from '../services/dashboard.service';
 import { DashboardStats } from '../models/dashboard.models';
-import { ProductsService } from '../../services/products.service';
+import { AdminCategoriesService } from '../services/admin-categories.service';
 import { ToastService } from '../../services/toast.service';
-import { productCategory } from '../../models/products.models';
 
 @Component({
     selector: 'app-dashboard',
@@ -59,15 +58,18 @@ export class DashboardComponent implements OnInit {
 
     constructor(
         private dashboardService: DashboardService,
-        private productsService: ProductsService,
+        private adminCategoriesService: AdminCategoriesService,
         private toastService: ToastService,
     ) {}
 
     ngOnInit() {
-        this.productsService.getCategories().pipe(take(1)).subscribe((cats: productCategory[]) => {
+        this.adminCategoriesService.getCategories().pipe(take(1)).subscribe((cats) => {
             this.categoryOptions = [
                 { label: 'All Categories', value: null },
-                ...cats.map((c) => ({ label: c.categoryName, value: c.id })),
+                ...cats.map((c) => ({
+                    label: c.isActive ? c.categoryName : `${c.categoryName} (Inactive)`,
+                    value: c.id,
+                })),
             ];
         });
         this.loadStats();

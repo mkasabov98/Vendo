@@ -277,12 +277,23 @@
         [modal]="true"
         [closable]="false"
         header="Set products active?"
-        [style]="{ width: '400px' }"
+        [style]="{ width: '420px' }"
     >
         <p class="warning-text">
+            <strong>{{ bulkActivateEligible.length }}</strong> of
             <strong>{{ selectedProducts.length }}</strong>
-            product{{ selectedProducts.length === 1 ? '' : 's' }} will be visible on the storefront.
+            product{{ selectedProducts.length === 1 ? '' : 's' }} will be set to active.
         </p>
+        @if (bulkActivateSkippedStock > 0 || bulkActivateSkippedCategory > 0) {
+            <ul class="skip-reasons">
+                @if (bulkActivateSkippedStock > 0) {
+                    <li>{{ bulkActivateSkippedStock }} skipped — out of stock (stock = 0)</li>
+                }
+                @if (bulkActivateSkippedCategory > 0) {
+                    <li>{{ bulkActivateSkippedCategory }} skipped — category is inactive</li>
+                }
+            </ul>
+        }
         <ng-template #footer>
             <p-button label="Cancel" severity="secondary" [text]="true" (onClick)="cancelBulkActivate()" />
             <p-button
@@ -355,7 +366,12 @@
                         </div>
                     </td>
                     <td>
-                        <span class="category-badge">{{ product.ProductCategory?.categoryName }}</span>
+                        <div class="category-cell">
+                            <span class="category-badge">{{ product.ProductCategory?.categoryName }}</span>
+                            @if (product.ProductCategory?.isActive === false) {
+                                <p-tag value="Inactive cat." severity="warn" styleClass="cat-inactive-tag" />
+                            }
+                        </div>
                     </td>
                     <td class="numeric">{{ product.supplyPrice | currency }}</td>
                     <td class="numeric">{{ product.margin }}%</td>

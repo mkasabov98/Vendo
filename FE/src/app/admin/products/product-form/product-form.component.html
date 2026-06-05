@@ -60,6 +60,12 @@
             @if (form.get('productCategoryId')?.invalid && form.get('productCategoryId')?.touched) {
                 <small class="field-error">Category is required</small>
             }
+            @if (selectedCategoryIsInactive) {
+                <div class="inactive-cat-banner">
+                    <i class="pi pi-exclamation-triangle"></i>
+                    <span>This category is inactive — the product won't appear on the storefront until the category is activated.</span>
+                </div>
+            }
         </div>
 
         <div class="form-row">
@@ -126,7 +132,12 @@
         </div>
 
         <div class="form-field toggle-field">
-            <label>Active on storefront</label>
+            <label>
+                Active on storefront
+                @if (selectedCategoryIsInactive) {
+                    <small class="lock-reason">· category inactive</small>
+                }
+            </label>
             <p-toggleswitch formControlName="isActive" />
         </div>
 
@@ -182,6 +193,7 @@
         />
     </ng-template>
 </p-dialog>
+
 
 <p-dialog
     [(visible)]="showDiscardConfirm"

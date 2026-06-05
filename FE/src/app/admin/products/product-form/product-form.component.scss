@@ -65,12 +65,40 @@
     margin-top: 4px;
 }
 
+// ── Inactive category banner ──────────────────────────────────
+
+.inactive-cat-banner {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 10px 12px;
+    background: #fff7ed;
+    border: 1px solid #fed7aa;
+    border-radius: var(--p-border-radius-md);
+    color: #9a3412;
+    font-size: 0.8rem;
+    line-height: 1.5;
+
+    i {
+        flex-shrink: 0;
+        margin-top: 1px;
+        color: #ea580c;
+    }
+}
+
 // ── Toggle row ────────────────────────────────────────────────
 
 .toggle-field {
     flex-direction: row !important;
     align-items: center;
     justify-content: space-between;
+}
+
+.lock-reason {
+    font-weight: 400;
+    font-size: 0.75rem;
+    color: var(--p-orange-600);
+    margin-left: 4px;
 }
 
 // ── Header ────────────────────────────────────────────────────

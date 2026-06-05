@@ -12,9 +12,8 @@ import { ToggleSwitchModule } from "primeng/toggleswitch";
 import { DialogModule } from "primeng/dialog";
 import { AdminProduct } from "../../models/admin-products.models";
 import { AdminProductsService } from "../../services/admin-products.service";
-import { ProductsService } from "../../../services/products.service";
+import { AdminCategoriesService } from "../../services/admin-categories.service";
 import { ToastService } from "../../../services/toast.service";
-import { productCategory } from "../../../models/products.models";
 
 export type ProductFormMode = "create" | "edit" | "copy";
 
@@ -47,6 +46,7 @@ export class ProductFormComponent implements OnDestroy {
     saving = false;
     mode: ProductFormMode = "create";
     categoryOptions: { label: string; value: number }[] = [];
+    private categoryActiveMap = new Map<number, boolean>();
 
     form!: FormGroup;
     private editingId: number | null = null;
@@ -54,6 +54,7 @@ export class ProductFormComponent implements OnDestroy {
     private pendingSavePayload: Record<string, unknown> | null = null;
     private skipDirtyCheck = false;
     private stockSub?: Subscription;
+    private categorySub?: Subscription;
 
     get drawerTitle(): string {
         return { create: "New Product", edit: "Edit Product", copy: "Copy Product" }[this.mode];
@@ -68,7 +69,7 @@ export class ProductFormComponent implements OnDestroy {
     constructor(
         private fb: FormBuilder,
         private adminProductsService: AdminProductsService,
-        private productsService: ProductsService,
+        private adminCategoriesService: AdminCategoriesService,
         private toastService: ToastService,
     ) {
         this.buildForm();
@@ -81,14 +82,17 @@ export class ProductFormComponent implements OnDestroy {
         this.buildForm(product);
         this.visible = true;
 
-        if (!this.categoryOptions.length) {
-            this.productsService
-                .getCategories()
-                .pipe(take(1))
-                .subscribe((cats: productCategory[]) => {
-                    this.categoryOptions = cats.map((c) => ({ label: c.categoryName, value: c.id }));
-                });
-        }
+        this.adminCategoriesService
+            .getCategories()
+            .pipe(take(1))
+            .subscribe((cats) => {
+                this.categoryActiveMap = new Map(cats.map((c) => [c.id, c.isActive]));
+                this.categoryOptions = cats.map((c) => ({
+                    label: c.isActive ? c.categoryName : `${c.categoryName} (Inactive)`,
+                    value: c.id,
+                }));
+                this.syncIsActiveState();
+            });
     }
 
     onDrawerHide() {
@@ -116,6 +120,12 @@ export class ProductFormComponent implements OnDestroy {
 
     cancelDiscard() {
         this.showDiscardConfirm = false;
+    }
+
+    get selectedCategoryIsInactive(): boolean {
+        const catId = this.form?.get("productCategoryId")?.value;
+        if (!catId) return false;
+        return this.categoryActiveMap.get(catId) === false;
     }
 
     submit() {
@@ -196,9 +206,10 @@ export class ProductFormComponent implements OnDestroy {
 
     private buildForm(product?: AdminProduct) {
         this.stockSub?.unsubscribe();
+        this.categorySub?.unsubscribe();
 
         const initialStock = product?.stock ?? null;
-        const forceInactive = initialStock === 0;
+        const forceInactive = initialStock === 0 || product?.ProductCategory?.isActive === false;
 
         this.form = this.fb.group({
             name: [product ? (this.mode === "copy" ? product.name + " (Copy)" : product.name) : "", Validators.required],
@@ -216,10 +227,27 @@ export class ProductFormComponent implements OnDestroy {
             if (stock === 0) {
                 isActiveCtrl?.setValue(false, { emitEvent: false });
                 isActiveCtrl?.disable({ emitEvent: false });
-            } else if (isActiveCtrl?.disabled) {
+            } else if (isActiveCtrl?.disabled && !this.selectedCategoryIsInactive) {
                 isActiveCtrl?.enable({ emitEvent: false });
             }
         });
+
+        this.categorySub = this.form.get("productCategoryId")?.valueChanges.subscribe(() => {
+            this.syncIsActiveState();
+        });
+    }
+
+    private syncIsActiveState() {
+        const catInactive = this.selectedCategoryIsInactive;
+        const isActiveCtrl = this.form.get("isActive");
+        const stock = this.form.get("stock")?.value;
+
+        if (catInactive) {
+            isActiveCtrl?.setValue(false, { emitEvent: false });
+            isActiveCtrl?.disable({ emitEvent: false });
+        } else if (stock !== 0 && isActiveCtrl?.disabled) {
+            isActiveCtrl?.enable({ emitEvent: false });
+        }
     }
 
     private doClose() {
@@ -232,5 +260,6 @@ export class ProductFormComponent implements OnDestroy {
 
     ngOnDestroy() {
         this.stockSub?.unsubscribe();
+        this.categorySub?.unsubscribe();
     }
 }

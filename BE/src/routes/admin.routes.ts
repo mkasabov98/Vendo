@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { authenticate } from "../middlewares/authenticate.middleware";
-import { bulkUpdateProducts, createCategory, createProduct, deleteProduct, getAdminProducts, getAnalyticsBreakdown, getAnalyticsTimeseries, getDashboardStats, getProductCartCount, registerAdmin, updateProduct } from "../controllers/admin.controller";
+import { bulkUpdateProducts, createCategory, createProduct, deleteProduct, getAdminProducts, getAnalyticsBreakdown, getAnalyticsTimeseries, getCategories, getCategoriesAnalytics, getCategoryTopProducts, getDashboardStats, getProductCartCount, registerAdmin, setCategoryActive, setCategoryInactive, updateProduct } from "../controllers/admin.controller";
 
 const router = Router();
 
@@ -14,6 +14,11 @@ router.patch("/products/bulk-update", authenticate, bulkUpdateProducts);
 router.patch("/products/update/:productId", authenticate, updateProduct);
 router.get("/products/:productId/cart-count", authenticate, getProductCartCount);
 router.delete("/products/delete/:productId", authenticate, deleteProduct);
-router.post("/category", authenticate, createCategory);
+router.get("/categories", authenticate, getCategories);
+router.post("/categories", authenticate, createCategory);
+router.get("/categories/analytics", authenticate, getCategoriesAnalytics);
+router.get("/categories/:id/top-products", authenticate, getCategoryTopProducts);
+router.patch("/categories/:id/set-active", authenticate, setCategoryActive);
+router.patch("/categories/:id/set-inactive", authenticate, setCategoryInactive);
 
 export default router;

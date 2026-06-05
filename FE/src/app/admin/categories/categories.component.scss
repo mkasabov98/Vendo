@@ -1,0 +1,182 @@
+.cat-wrapper {
+    padding: 28px 32px 56px;
+    min-height: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+// ── Header ──────────────────────────────────────────────────────
+
+.cat-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 4px;
+}
+
+.page-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--p-surface-900);
+    margin: 0;
+    letter-spacing: -0.02em;
+}
+
+
+// ── Card ─────────────────────────────────────────────────────────
+
+.a-card {
+    background: var(--p-content-background);
+    border: 1px solid var(--p-surface-200);
+    border-radius: var(--p-border-radius-xl);
+    padding: 22px 24px;
+}
+
+.card-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 18px;
+
+    p-select {
+        margin-left: auto;
+        flex-shrink: 0;
+    }
+}
+
+.card-title-group {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.card-title {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--p-surface-700);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin: 0;
+}
+
+.card-subtitle {
+    font-size: 0.78rem;
+    color: var(--p-surface-400);
+    margin: 0;
+    line-height: 1.4;
+}
+
+.chip {
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--p-primary-600);
+    background: var(--p-primary-50);
+    border-radius: 999px;
+    padding: 2px 10px;
+}
+
+// ── Table cells ───────────────────────────────────────────────────
+
+.cat-name {
+    font-weight: 600;
+    color: var(--p-surface-800);
+}
+
+.actions-cell {
+    text-align: right;
+}
+
+.rank-cell {
+    font-weight: 700;
+    color: var(--p-surface-400);
+}
+
+.prod-name {
+    font-weight: 500;
+    color: var(--p-surface-800);
+    max-width: 260px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.profit-pos {
+    color: #16a34a;
+    font-weight: 600;
+}
+
+.profit-neg {
+    color: #dc2626;
+    font-weight: 600;
+}
+
+// ── Chart ─────────────────────────────────────────────────────────
+
+.chart-wrap {
+    height: 260px;
+}
+
+// ── Empty / loading states ────────────────────────────────────────
+
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    height: 180px;
+    color: var(--p-surface-400);
+
+    i {
+        font-size: 2rem;
+    }
+
+    span {
+        font-size: 0.9rem;
+    }
+}
+
+.empty-msg {
+    text-align: center;
+    color: var(--p-surface-400);
+    padding: 24px 0 !important;
+    font-size: 0.875rem;
+}
+
+// ── Dialogs ───────────────────────────────────────────────────────
+
+.dialog-body {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 4px 0 8px;
+}
+
+.field-label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--p-surface-600);
+}
+
+.confirm-body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 0 16px;
+    text-align: center;
+}
+
+.confirm-icon {
+    font-size: 2.5rem;
+    color: #f97316;
+}
+
+.confirm-sub {
+    font-size: 0.8rem;
+    color: var(--p-surface-400);
+    margin: 0;
+}
