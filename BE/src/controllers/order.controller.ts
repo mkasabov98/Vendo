@@ -14,7 +14,7 @@ import stripe from "../config/stripe";
 import Stripe from "stripe";
 import { User } from "../models/user.model";
 import { DiscountCode } from "../models/discountCode.model";
-import { sendOrderConfirmationEmail, sendOrderShippedEmail, sendOrderDeliveredEmail } from "../services/email.service";
+import { sendOrderConfirmationEmail } from "../services/email.service";
 
 interface WebhookRequest extends Request {
     rawBody: Buffer;
@@ -77,10 +77,7 @@ export const handleStripeWebhook = async (req: WebhookRequest, res, next: NextFu
 
             for (const x of orderProducts) {
                 await Product.decrement("stock", { by: x.quantity, where: { id: x.productId }, transaction });
-                await Product.update(
-                    { isActive: false },
-                    { where: { id: x.productId, stock: 0 }, transaction },
-                );
+                await Product.update({ isActive: false }, { where: { id: x.productId, stock: 0 }, transaction });
             }
 
             const userId = parseInt(paymentIntent.metadata.userId);
@@ -97,10 +94,7 @@ export const handleStripeWebhook = async (req: WebhookRequest, res, next: NextFu
             }
 
             if (order.discountCodeId) {
-                await DiscountCode.update(
-                    { used: true, orderId: order.id },
-                    { where: { id: order.discountCodeId }, transaction }
-                );
+                await DiscountCode.update({ used: true, orderId: order.id }, { where: { id: order.discountCodeId }, transaction });
             }
 
             await transaction.commit();
@@ -115,40 +109,9 @@ export const handleStripeWebhook = async (req: WebhookRequest, res, next: NextFu
                     priceAtPurchase: x.priceAtPurchase,
                 }));
 
-                sendOrderConfirmationEmail(
-                    user.email,
-                    order.id,
-                    items,
-                    order.totalAmount,
-                    order.shippingAddress,
-                    order.discountAmount ?? undefined
-                ).catch((err) => console.error("Failed to send order confirmation email:", err));
-
-                const THREE_MINUTES = 3 * 60 * 1000;
-                const orderId = order.id;
-                const userEmail = user.email;
-
-                setTimeout(async () => {
-                    try {
-                        await Order.update({ status: OrderStatuses.Shipped }, { where: { id: orderId } });
-                        sendOrderShippedEmail(userEmail, orderId).catch((err) =>
-                            console.error("Failed to send order shipped email:", err)
-                        );
-                    } catch (err) {
-                        console.error(`Failed to update order ${orderId} to Shipped:`, err);
-                    }
-                }, THREE_MINUTES);
-
-                setTimeout(async () => {
-                    try {
-                        await Order.update({ status: OrderStatuses.Delivered }, { where: { id: orderId } });
-                        sendOrderDeliveredEmail(userEmail, orderId).catch((err) =>
-                            console.error("Failed to send order delivered email:", err)
-                        );
-                    } catch (err) {
-                        console.error(`Failed to update order ${orderId} to Delivered:`, err);
-                    }
-                }, THREE_MINUTES * 2);
+                sendOrderConfirmationEmail(user.email, order.id, items, order.totalAmount, order.shippingAddress, order.discountAmount ?? undefined).catch(
+                    (err) => console.error("Failed to send order confirmation email:", err),
+                );
             }
         } catch (error) {
             console.error("Error during webhook fulfillment:", error);
@@ -159,10 +122,7 @@ export const handleStripeWebhook = async (req: WebhookRequest, res, next: NextFu
     if (event.type === "payment_intent.payment_failed" || event.type === "payment_intent.canceled") {
         const paymentIntent = event.data.object as Stripe.PaymentIntent;
         try {
-            await Order.update(
-                { status: OrderStatuses.Cancelled },
-                { where: { stripePaymentIntentId: paymentIntent.id, status: OrderStatuses.Pending } }
-            );
+            await Order.update({ status: OrderStatuses.Cancelled }, { where: { stripePaymentIntentId: paymentIntent.id, status: OrderStatuses.Pending } });
             console.log(`Order cancelled due to ${event.type} — payment intent ${paymentIntent.id}`);
         } catch (error) {
             console.error(`Failed to cancel order for payment intent ${paymentIntent.id}`, error);
@@ -193,13 +153,14 @@ export const getUserOrders = async (req: AuthRequest, res: Response, next: NextF
             totalAmount: order.totalAmount,
             shippingAddress: order.shippingAddress,
             createdAt: order.createdAt,
-            products: order.OrderProducts?.map((op: any) => ({
-                productId: op.productId,
-                name: op.Product?.name,
-                imageUrl: op.Product?.imageUrl,
-                priceAtPurchase: op.priceAtPurchase,
-                quantity: op.quantity,
-            })) ?? [],
+            products:
+                order.OrderProducts?.map((op: any) => ({
+                    productId: op.productId,
+                    name: op.Product?.name,
+                    imageUrl: op.Product?.imageUrl,
+                    priceAtPurchase: op.priceAtPurchase,
+                    quantity: op.quantity,
+                })) ?? [],
         }));
 
         res.status(200).json(result);
@@ -215,10 +176,10 @@ export const createPaymentIntent = async (req: AuthRequest, res: Response, next:
     try {
         if (req.user?.role !== UserRoles.User) throw { status: 401, message: "Unauthorized" };
 
-        const userCart = await Cart.findOne({
+        const userCart = (await Cart.findOne({
             where: { userId: user.id },
             include: [{ model: DiscountCode, as: "CartDiscount" }],
-        }) as Cart & { CartDiscount: DiscountCode | null };
+        })) as Cart & { CartDiscount: DiscountCode | null };
         if (!userCart) throw { status: 400, message: "No cart found." };
 
         const address = await Address.findOne({ where: { id: addressId, userId: user.id } });
@@ -245,7 +206,7 @@ export const createPaymentIntent = async (req: AuthRequest, res: Response, next:
                 errors.push(`"${x.Product.name}" is no longer available. Please remove it from your cart before checking out.`);
             } else if (x.quantity > x.Product.stock) {
                 errors.push(
-                    `Currently we do not have ${x.quantity} units of ${x.Product.name} in stock. We have ${x.Product.stock} units in stock of that item.`
+                    `Currently we do not have ${x.quantity} units of ${x.Product.name} in stock. We have ${x.Product.stock} units in stock of that item.`,
                 );
             }
         });
@@ -290,7 +251,7 @@ export const createPaymentIntent = async (req: AuthRequest, res: Response, next:
                     discountCodeId: discountCode?.id ?? null,
                     discountAmount: discountAmount > 0 ? discountAmount : null,
                 },
-                { transaction }
+                { transaction },
             );
 
             const orderProducts = productsInCart.map((x) => ({

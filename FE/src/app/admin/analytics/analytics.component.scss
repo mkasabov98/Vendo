@@ -136,6 +136,16 @@
 ::ng-deep .analytics-datepicker-panel {
     left: 50% !important;
     transform: translateX(-50%);
+    animation: datepicker-reveal 0s linear 60ms both;
+}
+
+@keyframes datepicker-reveal {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
 }
 
 // ── Responsive ────────────────────────────────────────────────────
