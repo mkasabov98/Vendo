@@ -9,6 +9,9 @@ import { OrderProduct } from "../models/orderProduct.model";
 import { CartProduct } from "../models/cartProduct.model";
 import { Op, fn, col, QueryTypes } from "sequelize";
 import sequelize from "../config/database";
+import stripe from "../config/stripe";
+import { OrderStatuses, canTransitionTo } from "../enums/order-enums.enum";
+import { sendOrderShippedEmail, sendOrderDeliveredEmail, sendOrderCancelledEmail } from "../services/email.service";
 
 const isAdmin = (user: { role: UserRoles }) => {
     return user.role === UserRoles.Admin;
@@ -126,26 +129,23 @@ export const getAdminProducts = async (req: AuthRequest, res: Response, next: Ne
         }
 
         const sortByMap: Record<string, string> = {
-            id:          "id",
-            name:        "name",
-            finalPrice:  "finalPrice",
+            id: "id",
+            name: "name",
+            finalPrice: "finalPrice",
             supplyPrice: "supplyPrice",
-            margin:      "margin",
-            stock:       "stock",
-            reviews:     "reviewsCount",
-            rating:      "starReview",
-            createdAt:   "createdAt",
-            updatedAt:   "updatedAt",
+            margin: "margin",
+            stock: "stock",
+            reviews: "reviewsCount",
+            rating: "starReview",
+            createdAt: "createdAt",
+            updatedAt: "updatedAt",
         };
         const sortColumn = sortByMap[(req.query.sortBy as string) ?? ""] ?? "createdAt";
 
         const whereClause: any = {};
 
         if (searchString) {
-            whereClause[Op.or] = [
-                { name:        { [Op.like]: `%${searchString}%` } },
-                { description: { [Op.like]: `%${searchString}%` } },
-            ];
+            whereClause[Op.or] = [{ name: { [Op.like]: `%${searchString}%` } }, { description: { [Op.like]: `%${searchString}%` } }];
         }
 
         if (categories.length > 0) {
@@ -170,10 +170,20 @@ export const getAdminProducts = async (req: AuthRequest, res: Response, next: Ne
             where: whereClause,
             include: [{ model: ProductCategory, as: "ProductCategory", attributes: ["id", "categoryName", "isActive"] }],
             attributes: [
-                "id", "name", "description",
-                "supplyPrice", "margin", "finalPrice",
-                "imageUrl", "stock", "starReview", "reviewsCount",
-                "isActive", "createdAt", "updatedAt", "productCategoryId",
+                "id",
+                "name",
+                "description",
+                "supplyPrice",
+                "margin",
+                "finalPrice",
+                "imageUrl",
+                "stock",
+                "starReview",
+                "reviewsCount",
+                "isActive",
+                "createdAt",
+                "updatedAt",
+                "productCategoryId",
             ],
             order: [[sortColumn, sortDir]],
             limit: itemsPerPage,
@@ -324,7 +334,7 @@ export const getCategoriesAnalytics = async (req: AuthRequest, res: Response, ne
             unitsSold: parseInt(r.unitsSold, 10) || 0,
         }));
 
-        const topCategoryId = categories.find((c) => c.revenue > 0)?.id ?? (categories[0]?.id ?? null);
+        const topCategoryId = categories.find((c) => c.revenue > 0)?.id ?? categories[0]?.id ?? null;
 
         res.json({ categories, topCategoryId });
     } catch (error) {
@@ -535,11 +545,16 @@ function getStartDate(timeframe: string): Date | null {
 function buildGroupExpr(alias: string, groupBy: string): string {
     const col = `\`${alias}\`.\`createdAt\``;
     switch (groupBy) {
-        case "day":     return `DATE(${col})`;
-        case "week":    return `YEARWEEK(${col}, 1)`;
-        case "month":   return `DATE_FORMAT(${col}, '%Y-%m')`;
-        case "quarter": return `CONCAT(YEAR(${col}), '-Q', QUARTER(${col}))`;
-        default:        return `DATE_FORMAT(${col}, '%Y-%m')`;
+        case "day":
+            return `DATE(${col})`;
+        case "week":
+            return `YEARWEEK(${col}, 1)`;
+        case "month":
+            return `DATE_FORMAT(${col}, '%Y-%m')`;
+        case "quarter":
+            return `CONCAT(YEAR(${col}), '-Q', QUARTER(${col}))`;
+        default:
+            return `DATE_FORMAT(${col}, '%Y-%m')`;
     }
 }
 
@@ -555,8 +570,8 @@ export const getAnalyticsTimeseries = async (req: AuthRequest, res: Response, ne
         if (!["day", "week", "month", "quarter"].includes(groupBy)) throw { status: 400, message: "Invalid groupBy" };
 
         const orderExpr = buildGroupExpr("o", groupBy);
-        const userExpr  = buildGroupExpr("u", groupBy);
-        const repl      = { startDate, endDate };
+        const userExpr = buildGroupExpr("u", groupBy);
+        const repl = { startDate, endDate };
 
         const [revenueRows, profitRows, userRows, discountRows] = await Promise.all([
             sequelize.query(
@@ -597,24 +612,23 @@ export const getAnalyticsTimeseries = async (req: AuthRequest, res: Response, ne
             ) as Promise<any[]>,
         ]);
 
-        const revenueMap       = new Map((revenueRows as any[]).map((r) => [String(r.period), r]));
-        const profitMap        = new Map((profitRows as any[]).map((p) => [String(p.period), p]));
-        const discountMap      = new Map((discountRows as any[]).map((d) => [String(d.period), d]));
-        const allOrderPeriods  = [...new Set([
-            ...(revenueRows as any[]).map((r) => String(r.period)),
-            ...(profitRows as any[]).map((p) => String(p.period)),
-        ])].sort();
+        const revenueMap = new Map((revenueRows as any[]).map((r) => [String(r.period), r]));
+        const profitMap = new Map((profitRows as any[]).map((p) => [String(p.period), p]));
+        const discountMap = new Map((discountRows as any[]).map((d) => [String(d.period), d]));
+        const allOrderPeriods = [
+            ...new Set([...(revenueRows as any[]).map((r) => String(r.period)), ...(profitRows as any[]).map((p) => String(p.period))]),
+        ].sort();
 
         const timeseries = allOrderPeriods.map((period) => ({
             period,
-            revenue:        parseFloat((revenueMap.get(period) as any)?.revenue        ?? "0") || 0,
-            orderCount:     parseInt((revenueMap.get(period) as any)?.orderCount       ?? "0", 10),
-            profit:         parseFloat((profitMap.get(period) as any)?.profit          ?? "0") || 0,
+            revenue: parseFloat((revenueMap.get(period) as any)?.revenue ?? "0") || 0,
+            orderCount: parseInt((revenueMap.get(period) as any)?.orderCount ?? "0", 10),
+            profit: parseFloat((profitMap.get(period) as any)?.profit ?? "0") || 0,
             discountAmount: parseFloat((discountMap.get(period) as any)?.discountAmount ?? "0") || 0,
         }));
 
         const users = (userRows as any[]).map((u) => ({
-            period:   String(u.period),
+            period: String(u.period),
             newUsers: parseInt(u.newUsers, 10),
         }));
 
@@ -632,7 +646,7 @@ export const getAnalyticsBreakdown = async (req: AuthRequest, res: Response, nex
         const { startDate, endDate } = req.query as { startDate: string; endDate: string };
         if (!startDate || !endDate) throw { status: 400, message: "startDate and endDate are required" };
 
-        const repl  = { startDate, endDate };
+        const repl = { startDate, endDate };
         const dateF = `DATE(o.createdAt) BETWEEN DATE(:startDate) AND DATE(:endDate)`;
 
         const [statusRows, revByCategory, topProducts, revByCountry, marginByCategory, discountStatusRows] = await Promise.all([
@@ -703,18 +717,37 @@ export const getAnalyticsBreakdown = async (req: AuthRequest, res: Response, nex
 
         const ordersByStatus = { pending: 0, paid: 0, shipped: 0, delivered: 0, cancelled: 0 };
         const statusKey: Record<number, keyof typeof ordersByStatus> = { 0: "pending", 1: "paid", 2: "shipped", 3: "delivered", 4: "cancelled" };
-        (statusRows as any[]).forEach((r) => { const k = statusKey[Number(r.status)]; if (k) ordersByStatus[k] = parseInt(r.count, 10); });
+        (statusRows as any[]).forEach((r) => {
+            const k = statusKey[Number(r.status)];
+            if (k) ordersByStatus[k] = parseInt(r.count, 10);
+        });
 
         const dsr = (discountStatusRows as any[])[0] ?? {};
         res.json({
             ordersByStatus,
-            revByCategory:    (revByCategory as any[]).map((r) => ({ category: r.category, revenue: parseFloat(r.revenue) || 0 })),
-            topProducts:      (topProducts as any[]).map((p) => ({ productId: p.productId, name: p.name, category: p.category ?? "", unitsSold: parseInt(p.unitsSold, 10), revenue: parseFloat(p.revenue) || 0, profit: parseFloat(p.profit) || 0 })),
-            revByCountry:     (revByCountry as any[]).map((r) => ({ country: r.country, revenue: parseFloat(r.revenue) || 0, orderCount: parseInt(r.orderCount, 10) })),
-            marginByCategory: (marginByCategory as any[]).map((m) => ({ category: m.category, marginPct: parseFloat(m.marginPct) || 0, profit: parseFloat(m.profit) || 0, revenue: parseFloat(m.revenue) || 0 })),
+            revByCategory: (revByCategory as any[]).map((r) => ({ category: r.category, revenue: parseFloat(r.revenue) || 0 })),
+            topProducts: (topProducts as any[]).map((p) => ({
+                productId: p.productId,
+                name: p.name,
+                category: p.category ?? "",
+                unitsSold: parseInt(p.unitsSold, 10),
+                revenue: parseFloat(p.revenue) || 0,
+                profit: parseFloat(p.profit) || 0,
+            })),
+            revByCountry: (revByCountry as any[]).map((r) => ({
+                country: r.country,
+                revenue: parseFloat(r.revenue) || 0,
+                orderCount: parseInt(r.orderCount, 10),
+            })),
+            marginByCategory: (marginByCategory as any[]).map((m) => ({
+                category: m.category,
+                marginPct: parseFloat(m.marginPct) || 0,
+                profit: parseFloat(m.profit) || 0,
+                revenue: parseFloat(m.revenue) || 0,
+            })),
             discountStatus: {
-                used:          parseInt(dsr.usedCount   ?? 0, 10),
-                activeUnused:  parseInt(dsr.activeCount ?? 0, 10),
+                used: parseInt(dsr.usedCount ?? 0, 10),
+                activeUnused: parseInt(dsr.activeCount ?? 0, 10),
                 expiredUnused: parseInt(dsr.expiredCount ?? 0, 10),
             },
         });
@@ -751,6 +784,203 @@ export const deleteProduct = async (req: AuthRequest, res: Response, next: NextF
         product.isActive = false;
         await product.save();
         res.status(200).json({ message: "Product deactivated successfully" });
+    } catch (error) {
+        next(error);
+    }
+};
+
+// GET /app/admin/orders
+export const getAdminOrders = async (req: AuthRequest, res: Response, next: NextFunction) => {
+    try {
+        if (!isAdmin(req.user)) throw { status: 401, message: "Unauthorized" };
+
+        const pageNumber = Math.max(0, parseInt(req.query.pageNumber as string, 10) || 0);
+        const itemsPerPage = Math.min(100, Math.max(1, parseInt(req.query.itemsPerPage as string, 10) || 20));
+        const offset = pageNumber * itemsPerPage;
+        const status = req.query.status as string | undefined;
+        const dateFrom = req.query.dateFrom as string | undefined;
+        const dateTo = req.query.dateTo as string | undefined;
+        const rawSearch = req.query.search ? (req.query.search as string).trim() : null;
+
+        const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
+        if (dateFrom && !ISO_DATE.test(dateFrom)) throw { status: 400, message: "Invalid dateFrom format (expected YYYY-MM-DD)" };
+        if (dateTo && !ISO_DATE.test(dateTo)) throw { status: 400, message: "Invalid dateTo format (expected YYYY-MM-DD)" };
+
+        const sortByMap: Record<string, string> = {
+            createdAt: "o.createdAt",
+            totalAmount: "o.totalAmount",
+            status: "o.status",
+        };
+        const sortColumn = sortByMap[(req.query.sortBy as string) ?? ""] ?? "o.createdAt";
+        const sortDir = (req.query.sortDir as string) === "asc" ? "ASC" : "DESC";
+
+        const conditions: string[] = ["1=1"];
+        const filterReplacements: Record<string, any> = {};
+
+        if (status !== undefined && status !== "all") {
+            const statusNum = parseInt(status, 10);
+            if (!isNaN(statusNum)) {
+                conditions.push("o.status = :status");
+                filterReplacements.status = statusNum;
+            }
+        }
+
+        if (dateFrom) {
+            conditions.push("DATE(o.createdAt) >= DATE(:dateFrom)");
+            filterReplacements.dateFrom = dateFrom;
+        }
+        if (dateTo) {
+            conditions.push("DATE(o.createdAt) <= DATE(:dateTo)");
+            filterReplacements.dateTo = dateTo;
+        }
+        if (rawSearch) {
+            conditions.push("(CAST(o.id AS CHAR) LIKE :search OR u.email LIKE :search)");
+            filterReplacements.search = `%${rawSearch}%`;
+        }
+
+        const whereClause = conditions.join(" AND ");
+
+        const [rows, countRows] = await Promise.all([
+            sequelize.query(
+                `SELECT o.id, u.email AS userEmail, o.status,
+                        o.totalAmount, COUNT(op.id) AS itemCount,
+                        o.shippingCountry, o.createdAt
+                 FROM Orders o
+                 JOIN Users u ON u.id = o.userId
+                 LEFT JOIN OrderProducts op ON op.orderId = o.id
+                 WHERE ${whereClause}
+                 GROUP BY o.id, u.email, o.status, o.totalAmount, o.shippingCountry, o.createdAt
+                 ORDER BY ${sortColumn} ${sortDir}
+                 LIMIT :limit OFFSET :offset`,
+                { replacements: { ...filterReplacements, limit: itemsPerPage, offset }, type: QueryTypes.SELECT },
+            ) as Promise<any[]>,
+            sequelize.query(
+                `SELECT COUNT(DISTINCT o.id) AS total
+                 FROM Orders o
+                 JOIN Users u ON u.id = o.userId
+                 WHERE ${whereClause}`,
+                { replacements: filterReplacements, type: QueryTypes.SELECT },
+            ) as Promise<any[]>,
+        ]);
+
+        const totalItems = parseInt((countRows[0] as any)?.total ?? "0", 10);
+
+        const data = (rows as any[]).map((r) => ({
+            id: r.id,
+            userEmail: r.userEmail,
+            status: r.status,
+            totalAmount: parseFloat(r.totalAmount) || 0,
+            itemCount: parseInt(r.itemCount, 10) || 0,
+            shippingCountry: r.shippingCountry,
+            createdAt: r.createdAt,
+        }));
+
+        res.json({
+            data,
+            meta: {
+                totalItems,
+                pageNumber,
+                itemsPerPage,
+                totalPages: Math.ceil(totalItems / itemsPerPage),
+            },
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+// GET /app/admin/orders/:id
+export const getAdminOrderDetail = async (req: AuthRequest, res: Response, next: NextFunction) => {
+    const orderId = parseInt(req.params.id, 10);
+    try {
+        if (!isAdmin(req.user)) throw { status: 401, message: "Unauthorized" };
+        if (isNaN(orderId)) throw { status: 400, message: "Invalid order ID" };
+
+        const rows: any[] = await sequelize.query(
+            `SELECT o.id, o.status, o.totalAmount, o.discountAmount,
+                    o.shippingAddress, o.shippingCity, o.shippingCountry, o.createdAt,
+                    u.email AS userEmail,
+                    dc.code AS discountCode, dc.discountPercentage,
+                    op.productId, op.priceAtPurchase, op.quantity,
+                    p.name AS productName, p.imageUrl
+             FROM Orders o
+             JOIN Users u ON u.id = o.userId
+             LEFT JOIN DiscountCodes dc ON dc.id = o.discountCodeId
+             LEFT JOIN OrderProducts op ON op.orderId = o.id
+             LEFT JOIN Products p ON p.id = op.productId
+             WHERE o.id = :orderId`,
+            { replacements: { orderId }, type: QueryTypes.SELECT },
+        );
+
+        if (!rows.length) throw { status: 404, message: "Order not found" };
+
+        const first = rows[0];
+        const detail = {
+            id: first.id,
+            userEmail: first.userEmail,
+            status: first.status,
+            totalAmount: parseFloat(first.totalAmount) || 0,
+            discountAmount: first.discountAmount !== null ? parseFloat(first.discountAmount) : null,
+            discountCode: first.discountCode ?? null,
+            discountPercentage: first.discountPercentage !== null ? parseFloat(first.discountPercentage) : null,
+            shippingAddress: first.shippingAddress,
+            shippingCity: first.shippingCity,
+            shippingCountry: first.shippingCountry,
+            createdAt: first.createdAt,
+            items: rows
+                .filter((r) => r.productId !== null)
+                .map((r) => ({
+                    productId: r.productId,
+                    name: r.productName,
+                    imageUrl: r.imageUrl,
+                    quantity: r.quantity,
+                    priceAtPurchase: parseFloat(r.priceAtPurchase) || 0,
+                })),
+        };
+
+        res.json(detail);
+    } catch (error) {
+        next(error);
+    }
+};
+
+// PATCH /app/admin/orders/:id/status
+export const updateAdminOrderStatus = async (req: AuthRequest, res: Response, next: NextFunction) => {
+    const orderId = parseInt(req.params.id, 10);
+    const { status: newStatus } = req.body;
+    try {
+        if (!isAdmin(req.user)) throw { status: 401, message: "Unauthorized" };
+        if (isNaN(orderId)) throw { status: 400, message: "Invalid order ID" };
+        if (typeof newStatus !== "number") throw { status: 400, message: "status must be a number" };
+
+        const order = await Order.findByPk(orderId);
+        if (!order) throw { status: 404, message: "Order not found" };
+
+        if (!canTransitionTo(order.status, newStatus)) {
+            throw { status: 400, message: `Cannot transition order from status ${order.status} to ${newStatus}` };
+        }
+
+        order.status = newStatus;
+        await order.save();
+
+        if (newStatus === OrderStatuses.Cancelled && order.stripePaymentIntentId) {
+            stripe.refunds
+                .create({ payment_intent: order.stripePaymentIntentId })
+                .catch((err) => console.error(`CRITICAL: Refund failed for order ${order.id} (PI: ${order.stripePaymentIntentId}):`, err));
+        }
+
+        const user = await User.findByPk(order.userId, { attributes: ["email"] });
+        if (user) {
+            if (newStatus === OrderStatuses.Shipped) {
+                sendOrderShippedEmail(user.email, order.id).catch((err) => console.error("Failed to send shipped email:", err));
+            } else if (newStatus === OrderStatuses.Delivered) {
+                sendOrderDeliveredEmail(user.email, order.id).catch((err) => console.error("Failed to send delivered email:", err));
+            } else if (newStatus === OrderStatuses.Cancelled) {
+                sendOrderCancelledEmail(user.email, order.id).catch((err) => console.error("Failed to send cancelled email:", err));
+            }
+        }
+
+        res.json({ id: order.id, status: order.status });
     } catch (error) {
         next(error);
     }

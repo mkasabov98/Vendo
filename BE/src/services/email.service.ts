@@ -44,10 +44,10 @@ export const sendOrderShippedEmail = async (to: string, orderId: number): Promis
                     <p style="margin: 0; font-weight: bold; color: #1a1a1a;">#${orderId}</p>
                 </div>
                 <p style="margin: 0 0 24px; color: #555; line-height: 1.6;">
-                    Your order has been shipped and is on its way to you.
+                    Great news — your order has been shipped and is on its way to you. You'll receive another email once it's been delivered.
                 </p>
                 <p style="margin: 0; color: #999; font-size: 13px;">
-                    You'll receive another email once your order has been moved to status delivered delivered (approximately 3 minutes).
+                    If you have any questions about your shipment, feel free to contact our support team.
                 </p>
             </div>
         `,
@@ -67,10 +67,33 @@ export const sendOrderDeliveredEmail = async (to: string, orderId: number): Prom
                     <p style="margin: 0; font-weight: bold; color: #1a1a1a;">#${orderId}</p>
                 </div>
                 <p style="margin: 0 0 24px; color: #555; line-height: 1.6;">
-                    Your order has been delivered. We hope you enjoy your purchase!
+                    Your order has been delivered. We hope you love your purchase!
                 </p>
                 <p style="margin: 0; color: #999; font-size: 13px;">
-                    If you'd like to leave a review, visit the product page.
+                    If you'd like to leave a review or have any questions, feel free to visit the product page or contact our support team.
+                </p>
+            </div>
+        `,
+    });
+};
+
+export const sendOrderCancelledEmail = async (to: string, orderId: number): Promise<void> => {
+    await transporter.sendMail({
+        from: `"Shop" <${process.env.GMAIL_USER}>`,
+        to,
+        subject: `Order #${orderId} Cancelled`,
+        html: `
+            <div style="font-family: Arial, sans-serif; max-width: 480px; margin: 0 auto; padding: 32px 24px; background: #ffffff;">
+                <h2 style="margin: 0 0 8px; color: #1a1a1a;">Your order has been cancelled</h2>
+                <div style="background: #f9f9f9; border-radius: 8px; padding: 16px 20px; margin: 20px 0;">
+                    <p style="margin: 0 0 4px; font-size: 13px; color: #999;">Order</p>
+                    <p style="margin: 0; font-weight: bold; color: #1a1a1a;">#${orderId}</p>
+                </div>
+                <p style="margin: 0 0 24px; color: #555; line-height: 1.6;">
+                    We're sorry to let you know that your order has been cancelled. If you were charged, a refund will appear on your original payment method within 5–10 business days.
+                </p>
+                <p style="margin: 0; color: #999; font-size: 13px;">
+                    If you have any questions or believe this was a mistake, please don't hesitate to contact our support team.
                 </p>
             </div>
         `,
@@ -83,7 +106,7 @@ export const sendOrderConfirmationEmail = async (
     items: OrderItem[],
     total: number,
     shippingAddress: string,
-    discountAmount?: number
+    discountAmount?: number,
 ): Promise<void> => {
     const itemRows = items
         .map(
@@ -92,7 +115,7 @@ export const sendOrderConfirmationEmail = async (
                 <td style="padding: 10px 0; border-bottom: 1px solid #f0f0f0; color: #1a1a1a;">${item.name}</td>
                 <td style="padding: 10px 0; border-bottom: 1px solid #f0f0f0; color: #555; text-align: center;">${item.quantity}</td>
                 <td style="padding: 10px 0; border-bottom: 1px solid #f0f0f0; color: #555; text-align: right;">$${(item.priceAtPurchase * item.quantity).toFixed(2)}</td>
-            </tr>`
+            </tr>`,
         )
         .join("");
 
@@ -134,8 +157,7 @@ export const sendOrderConfirmationEmail = async (
                 </div>
 
                 <p style="margin: 32px 0 0; color: #999; font-size: 12px;">
-                    You will receive a shipping confirmation email in approximately 3 minutes,
-                    followed by a delivery confirmation in approximately 3 more minutes.
+                    Our team will process your order shortly. You'll receive a shipping confirmation email once it's on its way.
                 </p>
             </div>
         `,

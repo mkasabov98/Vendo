@@ -1,0 +1,287 @@
+<div class="orders-wrapper">
+    <!-- Top bar -->
+    <div class="top-bar">
+        <div class="orders-header">
+            <h1 class="page-title">Orders</h1>
+        </div>
+
+        <div class="filter-bar">
+            <div class="filter-item" pTooltip="Search by order ID or customer email" tooltipPosition="top">
+                <p-iconfield>
+                    <p-inputicon styleClass="pi pi-search" />
+                    <input
+                        pInputText
+                        placeholder="Order ID or email…"
+                        [(ngModel)]="searchValue"
+                        (ngModelChange)="onSearchChange($event)"
+                        class="search-input"
+                    />
+                </p-iconfield>
+            </div>
+
+            <div class="filter-item" pTooltip="Filter by order status" tooltipPosition="top">
+                <p-select
+                    [options]="statusOptions"
+                    optionLabel="label"
+                    optionValue="value"
+                    [(ngModel)]="statusFilter"
+                    [showClear]="statusFilter !== 'all'"
+                    (onClear)="statusFilter = 'all'"
+                    styleClass="filter-select"
+                />
+            </div>
+
+            <div class="filter-item" pTooltip="Filter by order date range" tooltipPosition="top">
+                <p-datepicker
+                    [(ngModel)]="dateRange"
+                    selectionMode="range"
+                    [readonlyInput]="true"
+                    placeholder="Date range…"
+                    dateFormat="M dd, yy"
+                    [maxDate]="today"
+                    styleClass="filter-datepicker"
+                    panelStyleClass="orders-datepicker-panel"
+                />
+            </div>
+
+            <div class="filter-actions">
+                <p-select
+                    [options]="sortByOptions"
+                    optionLabel="label"
+                    optionValue="value"
+                    [(ngModel)]="sortBy"
+                    pTooltip="Sort by field"
+                    tooltipPosition="top"
+                    styleClass="filter-select"
+                />
+                <p-button
+                    [icon]="sortDir === 'asc' ? 'pi pi-sort-amount-up' : 'pi pi-sort-amount-down-alt'"
+                    [pTooltip]="sortDir === 'asc' ? 'Ascending' : 'Descending'"
+                    tooltipPosition="top"
+                    severity="secondary"
+                    [outlined]="true"
+                    (onClick)="toggleSortDir()"
+                />
+                @if (hasActiveFilters) {
+                    <p-button label="Clear" icon="pi pi-filter-slash" [text]="true" severity="secondary" (onClick)="clearAll()" />
+                }
+                <p-button label="Apply" icon="pi pi-check" [loading]="loading" (onClick)="applyFilters()" />
+            </div>
+        </div>
+    </div>
+
+    <!-- Table -->
+    <div class="table-card">
+        <p-table
+            #dt
+            [value]="orders"
+            [lazy]="true"
+            [loading]="loading"
+            [paginator]="true"
+            [rows]="itemsPerPage"
+            [rowsPerPageOptions]="[10, 20, 50]"
+            [totalRecords]="totalRecords"
+            (onLazyLoad)="onLazyLoad($event)"
+            [rowHover]="true"
+            [scrollable]="true"
+            scrollHeight="flex"
+            styleClass="orders-table"
+        >
+            <ng-template #header>
+                <tr>
+                    <th style="width: 80px">#</th>
+                    <th style="width: 220px">Customer</th>
+                    <th style="width: 120px">Status</th>
+                    <th style="width: 110px">Total</th>
+                    <th style="width: 80px">Items</th>
+                    <th style="width: 120px">Country</th>
+                    <th style="width: 130px">Date</th>
+                    <th style="width: 60px"></th>
+                </tr>
+            </ng-template>
+
+            <ng-template #body let-order>
+                <tr class="order-row" (click)="openDrawer(order)">
+                    <td class="id-cell">#{{ order.id }}</td>
+                    <td class="email-cell">{{ order.userEmail }}</td>
+                    <td>
+                        <p-tag [value]="statusLabel(order.status)" [severity]="statusSeverity(order.status)" />
+                    </td>
+                    <td class="numeric">{{ order.totalAmount | currency }}</td>
+                    <td class="numeric">{{ order.itemCount }}</td>
+                    <td>{{ order.shippingCountry }}</td>
+                    <td class="date-cell">{{ order.createdAt | date: "MMM d, y" }}</td>
+                    <td>
+                        <i class="pi pi-chevron-right row-chevron"></i>
+                    </td>
+                </tr>
+            </ng-template>
+
+            <ng-template #emptymessage>
+                <tr>
+                    <td colspan="8" class="empty-state">
+                        <i class="pi pi-receipt"></i>
+                        <span>No orders found</span>
+                    </td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </div>
+
+    <!-- Order detail drawer -->
+    <p-drawer [(visible)]="drawerVisible" position="right" styleClass="order-drawer" [modal]="true" (onHide)="closeDrawer()">
+        <ng-template #header>
+            @if (selectedOrder) {
+                <div class="drawer-header">
+                    <div class="drawer-title-row">
+                        <span class="drawer-title">Order #{{ selectedOrder.id }}</span>
+                        <p-tag [value]="statusLabel(selectedOrder.status)" [severity]="statusSeverity(selectedOrder.status)" />
+                    </div>
+                    <span class="drawer-date">{{ selectedOrder.createdAt | date: "MMMM d, y, h:mm a" }}</span>
+                </div>
+            } @else {
+                <span class="drawer-title">Order Detail</span>
+            }
+        </ng-template>
+
+        <!-- Loading skeleton -->
+        @if (detailLoading) {
+            <div class="drawer-skeleton">
+                @for (i of [1, 2, 3, 4, 5]; track i) {
+                    <p-skeleton height="20px" styleClass="mb-2" />
+                }
+            </div>
+        }
+
+        @if (selectedOrder && !detailLoading) {
+            <div class="drawer-body">
+                <!-- Customer & Shipping -->
+                <section class="drawer-section">
+                    <h3 class="section-title">Customer</h3>
+                    <div class="info-row">
+                        <i class="pi pi-envelope info-icon"></i>
+                        <span>{{ selectedOrder.userEmail }}</span>
+                    </div>
+                    <div class="info-row">
+                        <i class="pi pi-map-marker info-icon"></i>
+                        <span>{{ selectedOrder.shippingAddress }}</span>
+                    </div>
+                </section>
+
+                <!-- Items -->
+                <section class="drawer-section">
+                    <h3 class="section-title">Items</h3>
+                    <div class="items-list">
+                        @for (item of selectedOrder.items; track item.productId) {
+                            <div class="item-row">
+                                <div class="item-info">
+                                    <span class="item-name">{{ item.name }}</span>
+                                    <span class="item-qty">× {{ item.quantity }}</span>
+                                </div>
+                                <span class="item-total">{{ item.priceAtPurchase * item.quantity | currency }}</span>
+                            </div>
+                        }
+                    </div>
+                </section>
+
+                <!-- Financial summary -->
+                <section class="drawer-section summary-section">
+                    <div class="summary-row">
+                        <span class="summary-label">Subtotal</span>
+                        <span class="summary-value">{{ getSubtotal(selectedOrder) | currency }}</span>
+                    </div>
+                    @if (selectedOrder.discountCode) {
+                        <div class="summary-row discount-row">
+                            <span class="summary-label">
+                                Discount
+                                <span class="discount-code">{{ selectedOrder.discountCode }}</span>
+                                <span class="discount-pct">({{ selectedOrder.discountPercentage }}% off)</span>
+                            </span>
+                            <span class="summary-value discount-value">−{{ selectedOrder.discountAmount | currency }}</span>
+                        </div>
+                    }
+                    <div class="summary-row total-row">
+                        <span class="summary-label">Total</span>
+                        <span class="summary-value total-value">{{ selectedOrder.totalAmount | currency }}</span>
+                    </div>
+                </section>
+
+                <!-- Status stepper -->
+                <section class="drawer-section">
+                    <h3 class="section-title">Status</h3>
+                    @if (selectedOrder.status === OrderStatus.Cancelled) {
+                        <div class="cancelled-banner">
+                            <i class="pi pi-times-circle"></i>
+                            <span>This order has been cancelled</span>
+                        </div>
+                    } @else {
+                        <div class="stepper">
+                            @for (step of STEPPER_STEPS; track step.status; let last = $last) {
+                                <div class="step-item">
+                                    <div class="step-circle {{ stepClass(step.status, selectedOrder.status) }}">
+                                        @if (stepClass(step.status, selectedOrder.status) === "done") {
+                                            <i class="pi pi-check"></i>
+                                        } @else {
+                                            <span>{{ step.status + 1 }}</span>
+                                        }
+                                    </div>
+                                    <span class="step-label {{ stepClass(step.status, selectedOrder.status) }}">
+                                        {{ step.label }}
+                                    </span>
+                                </div>
+                                @if (!last) {
+                                    <div class="step-connector {{ stepClass(step.status, selectedOrder.status) === 'upcoming' ? 'upcoming' : 'done' }}"></div>
+                                }
+                            }
+                        </div>
+                    }
+                </section>
+
+                <!-- Actions -->
+                @if (canTransitionTo(OrderStatus.Shipped) || canTransitionTo(OrderStatus.Delivered) || canTransitionTo(OrderStatus.Cancelled)) {
+                    <section class="drawer-section actions-section">
+                        <h3 class="section-title">Actions</h3>
+                        <div class="action-buttons">
+                            @if (canTransitionTo(OrderStatus.Shipped)) {
+                                <p-button label="Mark as Shipped" icon="pi pi-send" (onClick)="requestStatusChange(OrderStatus.Shipped)" />
+                            }
+                            @if (canTransitionTo(OrderStatus.Delivered)) {
+                                <p-button
+                                    label="Mark as Delivered"
+                                    icon="pi pi-check-circle"
+                                    severity="success"
+                                    (onClick)="requestStatusChange(OrderStatus.Delivered)"
+                                />
+                            }
+                            @if (canTransitionTo(OrderStatus.Cancelled)) {
+                                <p-button
+                                    label="Cancel Order"
+                                    icon="pi pi-times"
+                                    severity="danger"
+                                    [outlined]="true"
+                                    (onClick)="requestStatusChange(OrderStatus.Cancelled)"
+                                />
+                            }
+                        </div>
+                    </section>
+                } @else if (selectedOrder.status === OrderStatus.Pending) {
+                    <section class="drawer-section">
+                        <div class="pending-note">
+                            <i class="pi pi-clock"></i>
+                            <span>Awaiting payment confirmation — actions will be available once payment is collected.</span>
+                        </div>
+                    </section>
+                }
+            </div>
+        }
+    </p-drawer>
+
+    <!-- Status change confirmation dialog -->
+    <p-dialog [(visible)]="showConfirm" [modal]="true" [closable]="false" header="Confirm status change" [style]="{ width: '420px' }">
+        <p class="confirm-text">{{ confirmMessage }}</p>
+        <ng-template #footer>
+            <p-button label="Cancel" severity="secondary" [text]="true" [disabled]="statusUpdateLoading" (onClick)="cancelStatusChange()" />
+            <p-button label="Confirm" [severity]="confirmSeverity" [loading]="statusUpdateLoading" (onClick)="confirmStatusChange()" />
+        </ng-template>
+    </p-dialog>
+</div>

@@ -1,9 +1,32 @@
 import { Router } from "express";
 import { authenticate } from "../middlewares/authenticate.middleware";
-import { bulkUpdateProducts, createCategory, createProduct, deleteProduct, getAdminProducts, getAnalyticsBreakdown, getAnalyticsTimeseries, getCategories, getCategoriesAnalytics, getCategoryTopProducts, getDashboardStats, getProductCartCount, registerAdmin, setCategoryActive, setCategoryInactive, updateProduct } from "../controllers/admin.controller";
+import {
+    bulkUpdateProducts,
+    createCategory,
+    createProduct,
+    deleteProduct,
+    getAdminOrders,
+    getAdminOrderDetail,
+    updateAdminOrderStatus,
+    getAdminProducts,
+    getAnalyticsBreakdown,
+    getAnalyticsTimeseries,
+    getCategories,
+    getCategoriesAnalytics,
+    getCategoryTopProducts,
+    getDashboardStats,
+    getProductCartCount,
+    registerAdmin,
+    setCategoryActive,
+    setCategoryInactive,
+    updateProduct,
+} from "../controllers/admin.controller";
 
 const router = Router();
 
+router.get("/orders", authenticate, getAdminOrders);
+router.get("/orders/:id", authenticate, getAdminOrderDetail);
+router.patch("/orders/:id/status", authenticate, updateAdminOrderStatus);
 router.get("/dashboard", authenticate, getDashboardStats);
 router.get("/analytics/timeseries", authenticate, getAnalyticsTimeseries);
 router.get("/analytics/breakdown", authenticate, getAnalyticsBreakdown);
