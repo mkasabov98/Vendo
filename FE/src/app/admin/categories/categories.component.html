@@ -1,220 +1,193 @@
 <div class="cat-wrapper">
-
-    <!-- ── Header ──────────────────────────────────────────────── -->
-    <div class="cat-header">
+    <!-- ── Top bar ──────────────────────────────────────────────── -->
+    <div class="top-bar">
         <h1 class="page-title">Categories</h1>
         <p-button label="Add Category" icon="pi pi-plus" (onClick)="openAddDialog()"></p-button>
     </div>
 
-    <!-- ── Categories Table ─────────────────────────────────────── -->
-    <div class="a-card">
-        <div class="card-header">
-            <h3 class="card-title">All Categories</h3>
-            @if (!loadingCategories) {
-                <span class="chip">{{ categories.length }} total</span>
+    <!-- ── Scrollable content ─────────────────────────────────── -->
+    <div class="cat-content">
+        <!-- ── Categories Table ─────────────────────────────────── -->
+        <div class="a-card">
+            <div class="card-header">
+                <h3 class="card-title">All Categories</h3>
+                @if (!loadingCategories) {
+                    <span class="chip">{{ categories.length }} total</span>
+                }
+            </div>
+
+            <p-table [value]="categories" [loading]="loadingCategories" [rowHover]="true" styleClass="p-datatable-sm" [scrollable]="true" scrollHeight="480px">
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th>Name</th>
+                        <th>Status</th>
+                        <th>Active Products</th>
+                        <th>Total Products</th>
+                        <th></th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-cat>
+                    <tr>
+                        <td class="cat-name">{{ cat.categoryName }}</td>
+                        <td>
+                            <p-tag [value]="cat.isActive ? 'Active' : 'Inactive'" [severity]="cat.isActive ? 'success' : 'danger'"></p-tag>
+                        </td>
+                        <td>{{ cat.activeProducts }}</td>
+                        <td>{{ cat.totalProducts }}</td>
+                        <td class="actions-cell">
+                            @if (cat.isActive) {
+                                <span
+                                    [pTooltip]="
+                                        cat.activeProducts > 0 ? 'Deactivates ' + cat.activeProducts + ' active product(s)' : 'No active products to deactivate'
+                                    "
+                                    tooltipPosition="left"
+                                    style="display: inline-flex"
+                                >
+                                    <p-button
+                                        label="Set Inactive"
+                                        icon="pi pi-ban"
+                                        severity="danger"
+                                        [outlined]="true"
+                                        size="small"
+                                        (onClick)="confirmDeactivate(cat)"
+                                    ></p-button>
+                                </span>
+                            } @else {
+                                <span
+                                    [pTooltip]="
+                                        cat.totalProducts > 0
+                                            ? cat.totalProducts + ' product(s) will still be inactive — re-activate individually'
+                                            : 'No products in this category'
+                                    "
+                                    tooltipPosition="left"
+                                    style="display: inline-flex"
+                                >
+                                    <p-button
+                                        label="Activate"
+                                        icon="pi pi-check-circle"
+                                        severity="success"
+                                        [outlined]="true"
+                                        size="small"
+                                        (onClick)="activateCategory(cat)"
+                                    ></p-button>
+                                </span>
+                            }
+                        </td>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="emptymessage">
+                    <tr>
+                        <td colspan="5" class="empty-msg">No categories found.</td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        </div>
+
+        <!-- ── Analytics ────────────────────────────────────────────── -->
+        <div class="a-card">
+            <div class="card-header">
+                <div class="card-title-group">
+                    <h3 class="card-title">Revenue &amp; Profit by Category</h3>
+                    <p class="card-subtitle">Total sales revenue and gross profit earned per category in the selected period</p>
+                </div>
+                <p-select
+                    [options]="timeframeOptions"
+                    optionLabel="label"
+                    optionValue="value"
+                    [(ngModel)]="selectedTimeframe"
+                    (onChange)="onTimeframeChange()"
+                    styleClass="timeframe-select"
+                ></p-select>
+            </div>
+
+            @if (loadingAnalytics) {
+                <p-skeleton height="260px"></p-skeleton>
+            } @else if (noAnalyticsData) {
+                <div class="empty-state">
+                    <i class="pi pi-chart-bar"></i>
+                    <span>No sales data for this period</span>
+                </div>
+            } @else {
+                <div class="chart-wrap">
+                    <p-chart type="bar" [data]="chartData" [options]="chartOptions" height="260"></p-chart>
+                </div>
             }
         </div>
 
-        <p-table
-            [value]="categories"
-            [loading]="loadingCategories"
-            [rowHover]="true"
-            styleClass="p-datatable-sm"
-            [scrollable]="true"
-            scrollHeight="480px"
-        >
-            <ng-template pTemplate="header">
-                <tr>
-                    <th>Name</th>
-                    <th>Status</th>
-                    <th>Active Products</th>
-                    <th>Total Products</th>
-                    <th></th>
-                </tr>
-            </ng-template>
-            <ng-template pTemplate="body" let-cat>
-                <tr>
-                    <td class="cat-name">{{ cat.categoryName }}</td>
-                    <td>
-                        <p-tag
-                            [value]="cat.isActive ? 'Active' : 'Inactive'"
-                            [severity]="cat.isActive ? 'success' : 'danger'"
-                        ></p-tag>
-                    </td>
-                    <td>{{ cat.activeProducts }}</td>
-                    <td>{{ cat.totalProducts }}</td>
-                    <td class="actions-cell">
-                        @if (cat.isActive) {
-                            <span
-                                [pTooltip]="cat.activeProducts > 0 ? 'Deactivates ' + cat.activeProducts + ' active product(s)' : 'No active products to deactivate'"
-                                tooltipPosition="left"
-                                style="display: inline-flex"
-                            >
-                                <p-button
-                                    label="Set Inactive"
-                                    icon="pi pi-ban"
-                                    severity="danger"
-                                    [outlined]="true"
-                                    size="small"
-                                    (onClick)="confirmDeactivate(cat)"
-                                ></p-button>
-                            </span>
+        <!-- ── Top Products ──────────────────────────────────────────── -->
+        <div class="a-card">
+            <div class="card-header">
+                <div class="card-title-group">
+                    <h3 class="card-title">Top 10 Products by Revenue</h3>
+                    <p class="card-subtitle">
+                        Best-performing products in
+                        @if (selectedCategoryName) {
+                            <strong>{{ selectedCategoryName }}</strong>
                         } @else {
-                            <span
-                                [pTooltip]="cat.totalProducts > 0 ? cat.totalProducts + ' product(s) will still be inactive — re-activate individually' : 'No products in this category'"
-                                tooltipPosition="left"
-                                style="display: inline-flex"
-                            >
-                                <p-button
-                                    label="Activate"
-                                    icon="pi pi-check-circle"
-                                    severity="success"
-                                    [outlined]="true"
-                                    size="small"
-                                    (onClick)="activateCategory(cat)"
-                                ></p-button>
-                            </span>
+                            the selected category
                         }
-                    </td>
-                </tr>
-            </ng-template>
-            <ng-template pTemplate="emptymessage">
-                <tr>
-                    <td colspan="5" class="empty-msg">No categories found.</td>
-                </tr>
-            </ng-template>
-        </p-table>
-    </div>
-
-    <!-- ── Analytics ────────────────────────────────────────────── -->
-    <div class="a-card">
-        <div class="card-header">
-            <div class="card-title-group">
-                <h3 class="card-title">Revenue &amp; Profit by Category</h3>
-                <p class="card-subtitle">Total sales revenue and gross profit earned per category in the selected period</p>
+                        · {{ selectedTimeframeLabel }}
+                    </p>
+                </div>
+                <p-select
+                    [options]="categoryOptions"
+                    optionLabel="label"
+                    optionValue="value"
+                    [(ngModel)]="selectedCategoryId"
+                    (onChange)="onCategoryChange()"
+                    placeholder="Select category"
+                    [disabled]="loadingAnalytics || categoryOptions.length === 0"
+                ></p-select>
             </div>
-            <p-select
-                [options]="timeframeOptions"
-                optionLabel="label"
-                optionValue="value"
-                [(ngModel)]="selectedTimeframe"
-                (onChange)="onTimeframeChange()"
-                styleClass="timeframe-select"
-            ></p-select>
+
+            <p-table [value]="topProducts" [loading]="loadingTopProducts" [rowHover]="true" styleClass="p-datatable-sm">
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th style="width: 3rem">#</th>
+                        <th>Product</th>
+                        <th>Revenue</th>
+                        <th>Profit</th>
+                        <th>Units Sold</th>
+                        <th>Added</th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-prod let-rowIndex="rowIndex">
+                    <tr>
+                        <td class="rank-cell">{{ rowIndex + 1 }}</td>
+                        <td class="prod-name">{{ prod.name }}</td>
+                        <td>{{ prod.revenue | currency }}</td>
+                        <td [class.profit-pos]="prod.profit > 0" [class.profit-neg]="prod.profit < 0">
+                            {{ prod.profit | currency }}
+                        </td>
+                        <td>{{ prod.unitsSold }}</td>
+                        <td>{{ prod.createdAt | date: "mediumDate" }}</td>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="emptymessage">
+                    <tr>
+                        <td colspan="6" class="empty-msg">
+                            @if (selectedCategoryId === null) {
+                                Select a category to view top products.
+                            } @else {
+                                No sales data for this category in the selected period.
+                            }
+                        </td>
+                    </tr>
+                </ng-template>
+            </p-table>
         </div>
-
-        @if (loadingAnalytics) {
-            <p-skeleton height="260px"></p-skeleton>
-        } @else if (noAnalyticsData) {
-            <div class="empty-state">
-                <i class="pi pi-chart-bar"></i>
-                <span>No sales data for this period</span>
-            </div>
-        } @else {
-            <div class="chart-wrap">
-                <p-chart type="bar" [data]="chartData" [options]="chartOptions" height="260"></p-chart>
-            </div>
-        }
     </div>
-
-    <!-- ── Top Products ──────────────────────────────────────────── -->
-    <div class="a-card">
-        <div class="card-header">
-            <div class="card-title-group">
-                <h3 class="card-title">Top 10 Products by Revenue</h3>
-                <p class="card-subtitle">
-                    Best-performing products in
-                    @if (selectedCategoryName) {
-                        <strong>{{ selectedCategoryName }}</strong>
-                    } @else {
-                        the selected category
-                    }
-                    · {{ selectedTimeframeLabel }}
-                </p>
-            </div>
-            <p-select
-                [options]="categoryOptions"
-                optionLabel="label"
-                optionValue="value"
-                [(ngModel)]="selectedCategoryId"
-                (onChange)="onCategoryChange()"
-                placeholder="Select category"
-                [disabled]="loadingAnalytics || categoryOptions.length === 0"
-            ></p-select>
-        </div>
-
-        <p-table
-            [value]="topProducts"
-            [loading]="loadingTopProducts"
-            [rowHover]="true"
-            styleClass="p-datatable-sm"
-        >
-            <ng-template pTemplate="header">
-                <tr>
-                    <th style="width:3rem">#</th>
-                    <th>Product</th>
-                    <th>Revenue</th>
-                    <th>Profit</th>
-                    <th>Units Sold</th>
-                    <th>Added</th>
-                </tr>
-            </ng-template>
-            <ng-template pTemplate="body" let-prod let-rowIndex="rowIndex">
-                <tr>
-                    <td class="rank-cell">{{ rowIndex + 1 }}</td>
-                    <td class="prod-name">{{ prod.name }}</td>
-                    <td>{{ prod.revenue | currency }}</td>
-                    <td [class.profit-pos]="prod.profit > 0" [class.profit-neg]="prod.profit < 0">
-                        {{ prod.profit | currency }}
-                    </td>
-                    <td>{{ prod.unitsSold }}</td>
-                    <td>{{ prod.createdAt | date : 'mediumDate' }}</td>
-                </tr>
-            </ng-template>
-            <ng-template pTemplate="emptymessage">
-                <tr>
-                    <td colspan="6" class="empty-msg">
-                        @if (selectedCategoryId === null) {
-                            Select a category to view top products.
-                        } @else {
-                            No sales data for this category in the selected period.
-                        }
-                    </td>
-                </tr>
-            </ng-template>
-        </p-table>
-    </div>
-
 </div>
 
 <!-- ── Add Category Dialog ──────────────────────────────────────── -->
-<p-dialog
-    header="Add Category"
-    [(visible)]="showAddDialog"
-    [modal]="true"
-    [draggable]="false"
-    [style]="{ width: '420px' }"
->
+<p-dialog header="Add Category" [(visible)]="showAddDialog" [modal]="true" [draggable]="false" [dismissableMask]="true" [style]="{ width: '420px' }">
     <div class="dialog-body">
         <label class="field-label">Category Name</label>
-        <input
-            pInputText
-            [(ngModel)]="newCategoryName"
-            placeholder="e.g. Electronics"
-            class="w-full"
-            (keydown.enter)="submitAddCategory()"
-            autofocus
-        />
+        <input pInputText [(ngModel)]="newCategoryName" placeholder="e.g. Electronics" class="w-full" (keydown.enter)="submitAddCategory()" autofocus />
     </div>
     <ng-template pTemplate="footer">
         <p-button label="Cancel" severity="secondary" [outlined]="true" (onClick)="showAddDialog = false"></p-button>
-        <p-button
-            label="Create"
-            icon="pi pi-check"
-            [loading]="addingCategory"
-            [disabled]="!newCategoryName.trim()"
-            (onClick)="submitAddCategory()"
-        ></p-button>
+        <p-button label="Create" icon="pi pi-check" [loading]="addingCategory" [disabled]="!newCategoryName.trim()" (onClick)="submitAddCategory()"></p-button>
     </ng-template>
 </p-dialog>
 
@@ -224,6 +197,7 @@
     [(visible)]="showConfirmDialog"
     [modal]="true"
     [draggable]="false"
+    [dismissableMask]="true"
     [style]="{ width: '440px' }"
     (onHide)="cancelDeactivate()"
 >
@@ -231,20 +205,14 @@
         <div class="confirm-body">
             <i class="pi pi-exclamation-triangle confirm-icon"></i>
             <p>
-                Setting <strong>{{ categoryToDeactivate.categoryName }}</strong> inactive will also
-                deactivate <strong>{{ categoryToDeactivate.activeProducts }}</strong> active product(s) in this category.
+                Setting <strong>{{ categoryToDeactivate.categoryName }}</strong> inactive will also deactivate
+                <strong>{{ categoryToDeactivate.activeProducts }}</strong> active product(s) in this category.
             </p>
             <p class="confirm-sub">This cannot be undone from this page — products must be re-activated individually.</p>
         </div>
     }
     <ng-template pTemplate="footer">
         <p-button label="Cancel" severity="secondary" [outlined]="true" (onClick)="cancelDeactivate()"></p-button>
-        <p-button
-            label="Set Inactive"
-            icon="pi pi-ban"
-            severity="danger"
-            [loading]="deactivating"
-            (onClick)="executeDeactivate()"
-        ></p-button>
+        <p-button label="Set Inactive" icon="pi pi-ban" severity="danger" [loading]="deactivating" (onClick)="executeDeactivate()"></p-button>
     </ng-template>
 </p-dialog>

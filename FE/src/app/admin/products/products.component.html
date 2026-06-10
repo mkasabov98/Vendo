@@ -1,188 +1,109 @@
 <div class="products-wrapper">
-
-    <!-- Sticky top bar: header + filters -->
+    <!-- Top bar -->
     <div class="top-bar">
-        <div class="products-header">
-            <h1 class="page-title">Products</h1>
-            <div class="header-actions">
-                @if (selectedProducts.length > 0) {
-                    <span class="selection-label">{{ selectedProducts.length }} selected</span>
+        <h1 class="page-title">Products</h1>
+        <div class="header-actions">
+            @if (selectedProducts.length > 0) {
+                <span class="selection-label">{{ selectedProducts.length }} selected</span>
+                <p-button label="Update Stock" icon="pi pi-box" severity="secondary" [outlined]="true" size="small" (onClick)="openBulkStockUpdate()" />
+                <span class="bulk-btn-wrapper" [pTooltip]="bulkActivateTooltip" tooltipPosition="top">
                     <p-button
-                        label="Update Stock"
-                        icon="pi pi-box"
-                        severity="secondary"
+                        label="Set Active"
+                        icon="pi pi-check-circle"
+                        severity="success"
                         [outlined]="true"
                         size="small"
-                        (onClick)="openBulkStockUpdate()"
+                        [disabled]="!canBulkActivate"
+                        (onClick)="openBulkActivateConfirm()"
                     />
-                    <span
-                        class="bulk-btn-wrapper"
-                        [pTooltip]="bulkActivateTooltip"
-                        tooltipPosition="top">
-                        <p-button
-                            label="Set Active"
-                            icon="pi pi-check-circle"
-                            severity="success"
-                            [outlined]="true"
-                            size="small"
-                            [disabled]="!canBulkActivate"
-                            (onClick)="openBulkActivateConfirm()"
-                        />
-                    </span>
-                    <p-button
-                        label="Set Inactive"
-                        icon="pi pi-ban"
-                        severity="danger"
-                        [outlined]="true"
-                        size="small"
-                        (onClick)="openBulkDeleteConfirm()"
-                    />
-                }
-                <p-button
-                    label="New Product"
-                    icon="pi pi-plus"
-                    size="small"
-                    (onClick)="openCreate()"
-                />
-            </div>
+                </span>
+                <p-button label="Set Inactive" icon="pi pi-ban" severity="danger" [outlined]="true" size="small" (onClick)="openBulkDeleteConfirm()" />
+            }
+            <p-button label="New Product" icon="pi pi-plus" size="small" (onClick)="openCreate()" />
+        </div>
+    </div>
+
+    <div class="filter-bar">
+        <div class="filter-item" pTooltip="Search by product name or description" tooltipPosition="top">
+            <p-iconfield>
+                <p-inputicon styleClass="pi pi-search" />
+                <input pInputText placeholder="Search products..." [(ngModel)]="searchString" (ngModelChange)="onSearchChange($event)" class="search-input" />
+            </p-iconfield>
         </div>
 
-        <div class="filter-bar">
+        <div class="filter-item" pTooltip="Filter by one or more product categories" tooltipPosition="top">
+            <p-multiselect
+                [options]="categoryOptions"
+                optionLabel="label"
+                optionValue="value"
+                [(ngModel)]="selectedCategories"
+                placeholder="All Categories"
+                [showClear]="(selectedCategories.length || 0) > 0"
+                (onClear)="onCategoriesClear()"
+                resetFilterOnHide="true"
+                styleClass="category-multiselect"
+            />
+        </div>
 
-            <div class="filter-item"
-                pTooltip="Search by product name or description"
-                tooltipPosition="top">
-                <p-iconfield>
-                    <p-inputicon styleClass="pi pi-search" />
-                    <input
-                        pInputText
-                        placeholder="Search products..."
-                        [(ngModel)]="searchString"
-                        (ngModelChange)="onSearchChange($event)"
-                        class="search-input"
-                    />
-                </p-iconfield>
-            </div>
+        <div class="filter-item" pTooltip="Filter by inventory level — Low Stock is 1–9 units, In Stock is 10+" tooltipPosition="top">
+            <p-select
+                [options]="stockFilterOptions"
+                optionLabel="label"
+                optionValue="value"
+                [(ngModel)]="stockFilter"
+                [showClear]="stockFilter !== 'all'"
+                (onClear)="onStockFilterClear()"
+                styleClass="filter-select"
+            />
+        </div>
 
-            <div class="filter-item"
-                pTooltip="Filter by one or more product categories"
-                tooltipPosition="top">
-                <p-multiselect
-                    [options]="categoryOptions"
-                    optionLabel="label"
-                    optionValue="value"
-                    [(ngModel)]="selectedCategories"
-                    placeholder="All Categories"
-                    [showClear]="(selectedCategories.length || 0) > 0"
-                    (onClear)="onCategoriesClear()"
-                    resetFilterOnHide="true"
-                    styleClass="category-multiselect"
-                />
-            </div>
+        <div class="filter-item" pTooltip="Filter by product status — Inactive products are hidden from the storefront" tooltipPosition="top">
+            <p-select
+                [options]="statusOptions"
+                optionLabel="label"
+                optionValue="value"
+                [(ngModel)]="status"
+                [showClear]="status !== 'all'"
+                (onClear)="onStatusClear()"
+                styleClass="filter-select"
+            />
+        </div>
 
-            <div class="filter-item"
-                pTooltip="Choose which field to order results by"
-                tooltipPosition="top">
-                <p-select
-                    [options]="sortByOptions"
-                    optionLabel="label"
-                    optionValue="value"
-                    [(ngModel)]="sortBy"
-                    styleClass="filter-select"
-                />
-            </div>
+        <div class="filter-item" pTooltip="Choose which field to order results by" tooltipPosition="top">
+            <p-select [options]="sortByOptions" optionLabel="label" optionValue="value" [(ngModel)]="sortBy" styleClass="filter-select" />
+        </div>
 
-            <div class="filter-item"
-                pTooltip="Filter by inventory level — Low Stock is 1–9 units, In Stock is 10+"
-                tooltipPosition="top">
-                <p-select
-                    [options]="stockFilterOptions"
-                    optionLabel="label"
-                    optionValue="value"
-                    [(ngModel)]="stockFilter"
-                    [showClear]="stockFilter !== 'all'"
-                    (onClear)="onStockFilterClear()"
-                    styleClass="filter-select"
-                />
-            </div>
+        <p-button
+            [icon]="sortDir === 'asc' ? 'pi pi-sort-amount-up' : 'pi pi-sort-amount-down-alt'"
+            [pTooltip]="sortDir === 'asc' ? 'Sort ascending' : 'Sort descending'"
+            tooltipPosition="top"
+            severity="secondary"
+            [outlined]="true"
+            (onClick)="toggleSortDir()"
+        />
 
-            <div class="filter-item"
-                pTooltip="Filter by product status — Inactive products are hidden from the storefront"
-                tooltipPosition="top">
-                <p-select
-                    [options]="statusOptions"
-                    optionLabel="label"
-                    optionValue="value"
-                    [(ngModel)]="status"
-                    [showClear]="status !== 'all'"
-                    (onClear)="onStatusClear()"
-                    styleClass="filter-select"
-                />
-            </div>
-
-            <div class="filter-actions">
-                <p-button
-                    [icon]="sortDir === 'asc' ? 'pi pi-sort-amount-up' : 'pi pi-sort-amount-down-alt'"
-                    [pTooltip]="sortDir === 'asc' ? 'Sort ascending' : 'Sort descending'"
-                    tooltipPosition="top"
-                    severity="secondary"
-                    [outlined]="true"
-                    (onClick)="toggleSortDir()"
-                />
-                @if (hasActiveFilters) {
-                    <p-button
-                        label="Clear"
-                        icon="pi pi-filter-slash"
-                        [text]="true"
-                        severity="secondary"
-                        (onClick)="clearAll()"
-                    />
-                }
-                <p-button
-                    label="Apply"
-                    icon="pi pi-check"
-                    [loading]="loading"
-                    (onClick)="applyFilters()"
-                />
-            </div>
+        <div class="filter-actions">
+            @if (hasActiveFilters) {
+                <p-button label="Clear" icon="pi pi-filter-slash" [text]="true" severity="secondary" (onClick)="clearAll()" />
+            }
+            <p-button label="Apply" icon="pi pi-check" [loading]="loading" (onClick)="applyFilters()" />
         </div>
     </div>
 
     <!-- Selection warning dialog -->
-    <p-dialog
-        [(visible)]="showSelectionWarning"
-        [modal]="true"
-        [closable]="false"
-        header="Clear selection?"
-        [style]="{ width: '380px' }"
-    >
+    <p-dialog [(visible)]="showSelectionWarning" [modal]="true" [closable]="false" header="Clear selection?" [style]="{ width: '380px' }">
         <p class="warning-text">
-            You have <strong>{{ selectedProducts.length }}</strong>
-            item{{ selectedProducts.length === 1 ? '' : 's' }} selected.
-            This action will clear your selection.
+            You have <strong>{{ selectedProducts.length }}</strong> item{{ selectedProducts.length === 1 ? "" : "s" }} selected. This action will clear your
+            selection.
         </p>
         <ng-template #footer>
-            <p-button
-                label="Cancel"
-                severity="secondary"
-                [text]="true"
-                (onClick)="cancelSelectionWarning()"
-            />
-            <p-button
-                label="Continue"
-                (onClick)="confirmSelectionWarning()"
-            />
+            <p-button label="Cancel" severity="secondary" [text]="true" (onClick)="cancelSelectionWarning()" />
+            <p-button label="Continue" (onClick)="confirmSelectionWarning()" />
         </ng-template>
     </p-dialog>
 
     <!-- Delete confirmation dialog -->
-    <p-dialog
-        [(visible)]="showDeleteConfirm"
-        [modal]="true"
-        [closable]="false"
-        header="Deactivate product?"
-        [style]="{ width: '420px' }"
-    >
+    <p-dialog [(visible)]="showDeleteConfirm" [modal]="true" [closable]="false" header="Deactivate product?" [style]="{ width: '420px' }">
         @if (deleteLoading) {
             <div class="dialog-loading">
                 <i class="pi pi-spin pi-spinner"></i>
@@ -192,58 +113,33 @@
             <p class="warning-text">
                 <strong>{{ deletingProduct?.name }}</strong> will be hidden from the storefront.
                 @if (deleteCartCount > 0) {
-                    It is currently in <strong>{{ deleteCartCount }}</strong>
-                    active cart{{ deleteCartCount === 1 ? '' : 's' }}.
+                    It is currently in <strong>{{ deleteCartCount }}</strong> active cart{{ deleteCartCount === 1 ? "" : "s" }}.
                 }
             </p>
         }
         <ng-template #footer>
             <p-button label="Cancel" severity="secondary" [text]="true" (onClick)="cancelDelete()" />
-            <p-button
-                label="Deactivate"
-                severity="danger"
-                [loading]="deleteLoading"
-                (onClick)="confirmDelete()"
-            />
+            <p-button label="Deactivate" severity="danger" [loading]="deleteLoading" (onClick)="confirmDelete()" />
         </ng-template>
     </p-dialog>
 
     <!-- Bulk delete confirmation dialog -->
-    <p-dialog
-        [(visible)]="showBulkDeleteConfirm"
-        [modal]="true"
-        [closable]="false"
-        header="Set selected products inactive?"
-        [style]="{ width: '420px' }"
-    >
+    <p-dialog [(visible)]="showBulkDeleteConfirm" [modal]="true" [closable]="false" header="Set selected products inactive?" [style]="{ width: '420px' }">
         <p class="warning-text">
             <strong>{{ selectedProducts.length }}</strong>
-            product{{ selectedProducts.length === 1 ? '' : 's' }} will be hidden from the storefront.
-            This action can be reversed by editing each product.
+            product{{ selectedProducts.length === 1 ? "" : "s" }} will be hidden from the storefront. This action can be reversed by editing each product.
         </p>
         <ng-template #footer>
             <p-button label="Cancel" severity="secondary" [text]="true" (onClick)="cancelBulkDelete()" />
-            <p-button
-                label="Deactivate All"
-                severity="danger"
-                [loading]="bulkDeleteLoading"
-                (onClick)="confirmBulkDelete()"
-            />
+            <p-button label="Deactivate All" severity="danger" [loading]="bulkDeleteLoading" (onClick)="confirmBulkDelete()" />
         </ng-template>
     </p-dialog>
 
     <!-- Bulk stock update dialog -->
-    <p-dialog
-        [(visible)]="showBulkStockUpdate"
-        [modal]="true"
-        [closable]="false"
-        header="Update stock"
-        [style]="{ width: '380px' }"
-    >
+    <p-dialog [(visible)]="showBulkStockUpdate" [modal]="true" [closable]="false" header="Update stock" [style]="{ width: '380px' }">
         <div class="bulk-stock-body">
             <p class="warning-text">
-                Set stock quantity for <strong>{{ selectedProducts.length }}</strong>
-                selected product{{ selectedProducts.length === 1 ? '' : 's' }}.
+                Set stock quantity for <strong>{{ selectedProducts.length }}</strong> selected product{{ selectedProducts.length === 1 ? "" : "s" }}.
             </p>
             @if (bulkStockValue === 0) {
                 <p class="stock-zero-note">
@@ -251,38 +147,20 @@
                     Products with 0 stock will be set to inactive.
                 </p>
             }
-            <p-inputnumber
-                [(ngModel)]="bulkStockValue"
-                [min]="0"
-                [showButtons]="true"
-                placeholder="New stock quantity"
-                [style]="{ width: '100%' }"
-            />
+            <p-inputnumber [(ngModel)]="bulkStockValue" [min]="0" [showButtons]="true" placeholder="New stock quantity" [style]="{ width: '100%' }" />
         </div>
         <ng-template #footer>
             <p-button label="Cancel" severity="secondary" [text]="true" (onClick)="cancelBulkStockUpdate()" />
-            <p-button
-                label="Apply"
-                icon="pi pi-check"
-                [loading]="bulkStockLoading"
-                [disabled]="bulkStockValue === null"
-                (onClick)="confirmBulkStockUpdate()"
-            />
+            <p-button label="Apply" icon="pi pi-check" [loading]="bulkStockLoading" [disabled]="bulkStockValue === null" (onClick)="confirmBulkStockUpdate()" />
         </ng-template>
     </p-dialog>
 
     <!-- Bulk activate confirmation dialog -->
-    <p-dialog
-        [(visible)]="showBulkActivateConfirm"
-        [modal]="true"
-        [closable]="false"
-        header="Set products active?"
-        [style]="{ width: '420px' }"
-    >
+    <p-dialog [(visible)]="showBulkActivateConfirm" [modal]="true" [closable]="false" header="Set products active?" [style]="{ width: '420px' }">
         <p class="warning-text">
             <strong>{{ bulkActivateEligible.length }}</strong> of
             <strong>{{ selectedProducts.length }}</strong>
-            product{{ selectedProducts.length === 1 ? '' : 's' }} will be set to active.
+            product{{ selectedProducts.length === 1 ? "" : "s" }} will be set to active.
         </p>
         @if (bulkActivateSkippedStock > 0 || bulkActivateSkippedCategory > 0) {
             <ul class="skip-reasons">
@@ -296,13 +174,7 @@
         }
         <ng-template #footer>
             <p-button label="Cancel" severity="secondary" [text]="true" (onClick)="cancelBulkActivate()" />
-            <p-button
-                label="Set Active"
-                icon="pi pi-check-circle"
-                severity="success"
-                [loading]="bulkActivateLoading"
-                (onClick)="confirmBulkActivate()"
-            />
+            <p-button label="Set Active" icon="pi pi-check-circle" severity="success" [loading]="bulkActivateLoading" (onClick)="confirmBulkActivate()" />
         </ng-template>
     </p-dialog>
 
@@ -352,12 +224,7 @@
                         <p-tableCheckbox [value]="product" />
                     </td>
                     <td>
-                        <img
-                            [src]="product.imageUrl"
-                            [alt]="product.name"
-                            class="product-thumb"
-                            (error)="onImageError($event)"
-                        />
+                        <img [src]="product.imageUrl" [alt]="product.name" class="product-thumb" (error)="onImageError($event)" />
                     </td>
                     <td>
                         <div class="name-cell">
@@ -377,18 +244,12 @@
                     <td class="numeric">{{ product.margin }}%</td>
                     <td class="numeric bold">{{ product.finalPrice | currency }}</td>
                     <td>
-                        <p-tag
-                            [value]="stockLabel(product.stock)"
-                            [severity]="stockSeverity(product.stock)"
-                        />
+                        <p-tag [value]="stockLabel(product.stock)" [severity]="stockSeverity(product.stock)" />
                     </td>
                     <td>
-                        <p-tag
-                            [value]="product.isActive ? 'Active' : 'Inactive'"
-                            [severity]="product.isActive ? 'success' : 'secondary'"
-                        />
+                        <p-tag [value]="product.isActive ? 'Active' : 'Inactive'" [severity]="product.isActive ? 'success' : 'secondary'" />
                     </td>
-                    <td class="date-cell">{{ product.updatedAt | date:'MMM d, y' }}</td>
+                    <td class="date-cell">{{ product.updatedAt | date: "MMM d, y" }}</td>
                     <td>
                         <div class="action-btns">
                             <p-button
@@ -436,5 +297,4 @@
             </ng-template>
         </p-table>
     </div>
-
 </div>

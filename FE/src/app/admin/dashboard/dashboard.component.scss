@@ -1,16 +1,20 @@
 .dashboard-wrapper {
-    padding: 28px 32px 48px;
-    min-height: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
 }
 
-// ── Header ─────────────────────────────────────────────────────
+// ── Top bar ─────────────────────────────────────────────────────
 
-.dashboard-header {
+.top-bar {
+    flex-shrink: 0;
+    padding: 20px 32px;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 24px;
-    gap: 16px;
+    background: var(--p-surface-50);
+    border-bottom: 1px solid var(--p-surface-200);
 }
 
 .page-title {
@@ -22,9 +26,12 @@
 }
 
 .filter-bar {
+    flex-shrink: 0;
     display: flex;
     align-items: center;
     gap: 8px;
+    padding: 12px 32px;
+    background: var(--p-surface-50);
     flex-wrap: wrap;
 }
 
@@ -32,9 +39,16 @@
     display: flex;
     align-items: center;
     gap: 6px;
-    padding-left: 10px;
-    border-left: 1px solid var(--p-surface-200);
-    margin-left: 2px;
+    margin-left: auto;
+}
+
+// ── Scrollable content ───────────────────────────────────────────
+
+.dashboard-content {
+    flex: 1;
+    overflow-y: auto;
+    scrollbar-width: none;
+    padding: 24px 32px 48px;
 }
 
 // ── Stat cards ─────────────────────────────────────────────────
@@ -70,14 +84,46 @@
     justify-content: center;
     flex-shrink: 0;
 
-    i { font-size: 1.2rem; }
+    i {
+        font-size: 1.2rem;
+    }
 
-    &.revenue  { background: #d1fae5; i { color: #059669; } }
-    &.profit   { background: #fef3c7; i { color: #d97706; } }
-    &.orders   { background: #dbeafe; i { color: #2563eb; } }
-    &.avg      { background: #ede9fe; i { color: #7c3aed; } }
-    &.products { background: #ffedd5; i { color: #ea580c; } }
-    &.users    { background: var(--p-primary-100); i { color: var(--p-primary-600); } }
+    &.revenue {
+        background: #d1fae5;
+        i {
+            color: #059669;
+        }
+    }
+    &.profit {
+        background: #fef3c7;
+        i {
+            color: #d97706;
+        }
+    }
+    &.orders {
+        background: #dbeafe;
+        i {
+            color: #2563eb;
+        }
+    }
+    &.avg {
+        background: #ede9fe;
+        i {
+            color: #7c3aed;
+        }
+    }
+    &.products {
+        background: #ffedd5;
+        i {
+            color: #ea580c;
+        }
+    }
+    &.users {
+        background: var(--p-primary-100);
+        i {
+            color: var(--p-primary-600);
+        }
+    }
 }
 
 .stat-info {
@@ -167,11 +213,21 @@
     border-radius: 50%;
     flex-shrink: 0;
 
-    &.pending   { background: #f97316; }
-    &.paid      { background: #3b82f6; }
-    &.shipped   { background: var(--p-primary-500); }
-    &.delivered { background: #22c55e; }
-    &.cancelled { background: #ef4444; }
+    &.pending {
+        background: #f97316;
+    }
+    &.paid {
+        background: #3b82f6;
+    }
+    &.shipped {
+        background: var(--p-primary-500);
+    }
+    &.delivered {
+        background: #22c55e;
+    }
+    &.cancelled {
+        background: #ef4444;
+    }
 }
 
 .bar-track {
@@ -186,11 +242,21 @@
     border-radius: 999px;
     transition: width 0.4s ease;
 
-    &.pending   { background: #f97316; }
-    &.paid      { background: #3b82f6; }
-    &.shipped   { background: var(--p-primary-500); }
-    &.delivered { background: #22c55e; }
-    &.cancelled { background: #ef4444; }
+    &.pending {
+        background: #f97316;
+    }
+    &.paid {
+        background: #3b82f6;
+    }
+    &.shipped {
+        background: var(--p-primary-500);
+    }
+    &.delivered {
+        background: #22c55e;
+    }
+    &.cancelled {
+        background: #ef4444;
+    }
 }
 
 .bar-count {
@@ -204,7 +270,8 @@
 
 ::ng-deep .top-products-table,
 ::ng-deep .low-stock-table {
-    th, td {
+    th,
+    td {
         padding: 10px 8px !important;
         border-color: var(--p-surface-100) !important;
         font-size: 0.875rem;
@@ -251,8 +318,12 @@
     color: #d97706;
 }
 
-.col-rank { width: 32px; }
-.col-num  { text-align: right; }
+.col-rank {
+    width: 32px;
+}
+.col-num {
+    text-align: right;
+}
 
 .cat-chip {
     display: inline-block;
@@ -285,7 +356,9 @@
     font-weight: 600;
     font-size: 0.9rem;
 
-    i { font-size: 1.2rem; }
+    i {
+        font-size: 1.2rem;
+    }
 }
 
 // ── Responsive ─────────────────────────────────────────────────
@@ -307,15 +380,6 @@
 }
 
 @media (max-width: 640px) {
-    .dashboard-wrapper {
-        padding: 16px 16px 40px;
-    }
-
-    .dashboard-header {
-        flex-direction: column;
-        align-items: flex-start;
-    }
-
     .stats-grid {
         grid-template-columns: 1fr 1fr;
     }

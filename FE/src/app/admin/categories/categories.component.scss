@@ -1,20 +1,20 @@
 .cat-wrapper {
-    padding: 28px 32px 56px;
-    min-height: 100%;
+    height: 100%;
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    overflow: hidden;
 }
 
-// ── Header ──────────────────────────────────────────────────────
+// ── Top bar ─────────────────────────────────────────────────────
 
-.cat-header {
+.top-bar {
+    flex-shrink: 0;
+    padding: 20px 32px;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 12px;
-    margin-bottom: 4px;
+    background: var(--p-surface-50);
+    border-bottom: 1px solid var(--p-surface-200);
 }
 
 .page-title {
@@ -25,6 +25,17 @@
     letter-spacing: -0.02em;
 }
 
+// ── Scrollable content ───────────────────────────────────────────
+
+.cat-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 24px 32px 48px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    scrollbar-width: none;
+}
 
 // ── Card ─────────────────────────────────────────────────────────
 
@@ -44,6 +55,7 @@
     p-select {
         margin-left: auto;
         flex-shrink: 0;
+        width: 200px;
     }
 }
 
@@ -159,6 +171,10 @@
     font-size: 0.85rem;
     font-weight: 600;
     color: var(--p-surface-600);
+}
+
+.w-full {
+    width: 100%;
 }
 
 .confirm-body {

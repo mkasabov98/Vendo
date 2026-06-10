@@ -1,0 +1,283 @@
+.users-wrapper {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+// ── Top bar ────────────────────────────────────────────────────
+
+.top-bar {
+    flex-shrink: 0;
+    padding: 20px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--p-surface-50);
+    border-bottom: 1px solid var(--p-surface-200);
+}
+
+.page-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--p-surface-900);
+    margin: 0;
+    letter-spacing: -0.02em;
+}
+
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+// ── Filter bar ─────────────────────────────────────────────────
+
+.filter-bar {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 32px;
+    background: var(--p-surface-50);
+    flex-wrap: wrap;
+}
+
+.search-input {
+    width: 260px;
+}
+
+::ng-deep p-select.filter-select {
+    width: 160px;
+}
+
+.filter-actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-left: auto;
+}
+
+// ── Table card ─────────────────────────────────────────────────
+
+.table-card {
+    flex: 1;
+    min-height: 0;
+    margin: 16px 32px 24px;
+    background: var(--p-content-background);
+    border: 1px solid var(--p-surface-200);
+    border-radius: var(--p-border-radius-xl);
+    overflow: hidden;
+
+    &--compact {
+        flex: 0 0 auto;
+        min-height: unset;
+    }
+}
+
+::ng-deep .users-table {
+    height: 100%;
+
+    .p-datatable-table-container {
+        overflow-x: auto;
+    }
+
+    th {
+        background: var(--p-surface-50) !important;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        color: var(--p-text-muted-color);
+        white-space: nowrap;
+        padding: 10px 12px !important;
+        border-bottom: 1px solid var(--p-surface-200) !important;
+    }
+
+    td {
+        padding: 10px 12px !important;
+        vertical-align: middle;
+        border-bottom: 1px solid var(--p-surface-100) !important;
+        font-size: 0.875rem;
+    }
+
+    tr:last-child td {
+        border-bottom: none !important;
+    }
+
+    .p-datatable-paginator-bottom {
+        border-top: 1px solid var(--p-surface-200);
+        padding: 8px 12px;
+    }
+}
+
+// ── Cell styles ────────────────────────────────────────────────
+
+.email-cell {
+    color: var(--p-surface-800);
+    font-weight: 500;
+    max-width: 320px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.date-cell {
+    color: var(--p-text-muted-color);
+    white-space: nowrap;
+    font-size: 0.82rem;
+}
+
+.numeric {
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
+.empty-state {
+    text-align: center !important;
+    padding: 60px 20px !important;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    color: var(--p-text-muted-color);
+
+    i {
+        font-size: 2.5rem;
+        opacity: 0.4;
+    }
+
+    span {
+        font-size: 0.95rem;
+    }
+}
+
+// ── Row expansion ─────────────────────────────────────────────
+
+.customer-row {
+    cursor: pointer;
+}
+
+.expansion-row > td {
+    padding: 0 !important;
+    border-bottom: 1px solid var(--p-surface-200) !important;
+}
+
+.expansion-body {
+    padding: 16px 24px 20px;
+    background: var(--p-surface-50);
+}
+
+.expansion-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+}
+
+.expansion-title {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--p-text-muted-color);
+}
+
+.expansion-loading {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--p-text-muted-color);
+    font-size: 0.85rem;
+    padding: 8px 0;
+
+    i {
+        font-size: 0.9rem;
+    }
+}
+
+.expansion-empty {
+    margin: 0;
+    font-size: 0.85rem;
+    color: var(--p-text-muted-color);
+    padding: 8px 0;
+}
+
+::ng-deep .inner-table {
+    th {
+        background: var(--p-surface-100) !important;
+        font-size: 0.72rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        color: var(--p-text-muted-color);
+        padding: 7px 10px !important;
+        border-bottom: 1px solid var(--p-surface-200) !important;
+    }
+
+    td {
+        padding: 8px 10px !important;
+        font-size: 0.82rem;
+        border-bottom: 1px solid var(--p-surface-100) !important;
+        background: var(--p-surface-0);
+    }
+
+    tr:last-child td {
+        border-bottom: none !important;
+    }
+}
+
+.id-cell {
+    font-weight: 600;
+    color: var(--p-surface-700);
+    font-variant-numeric: tabular-nums;
+}
+
+// ── Dialogs ────────────────────────────────────────────────────
+
+.dialog-body {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 4px 0;
+}
+
+.field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.field-label {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--p-surface-700);
+}
+
+.w-full {
+    width: 100%;
+}
+
+.error-list {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 10px 12px;
+    background: var(--p-red-50);
+    border: 1px solid var(--p-red-200);
+    border-radius: var(--p-border-radius-md);
+}
+
+.error-item {
+    margin: 0;
+    font-size: 0.82rem;
+    color: var(--p-red-700);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+
+    i {
+        font-size: 0.8rem;
+        flex-shrink: 0;
+    }
+}

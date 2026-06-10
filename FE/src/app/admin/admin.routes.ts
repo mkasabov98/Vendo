@@ -5,6 +5,7 @@ import { AnalyticsComponent } from "./analytics/analytics.component";
 import { AdminProductsComponent } from "./products/products.component";
 import { CategoriesComponent } from "./categories/categories.component";
 import { OrdersComponent } from "./orders/orders.component";
+import { UsersComponent } from "./users/users.component";
 
 export const adminRoutes: Routes = [
     {
@@ -16,6 +17,14 @@ export const adminRoutes: Routes = [
             { path: "products", component: AdminProductsComponent },
             { path: "categories", component: CategoriesComponent },
             { path: "orders", component: OrdersComponent },
+            {
+                path: "users",
+                children: [
+                    { path: "", redirectTo: "customers", pathMatch: "full" },
+                    { path: "customers", component: UsersComponent, data: { section: "customers" } },
+                    { path: "admins", component: UsersComponent, data: { section: "admins" } },
+                ],
+            },
             { path: "", redirectTo: "dashboard", pathMatch: "full" },
         ],
     },

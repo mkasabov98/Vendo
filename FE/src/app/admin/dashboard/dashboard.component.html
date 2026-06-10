@@ -1,196 +1,172 @@
 <div class="dashboard-wrapper">
-
-    <!-- Header -->
-    <div class="dashboard-header">
+    <!-- Top bar -->
+    <div class="top-bar">
         <h1 class="page-title">Dashboard</h1>
-        <div class="filter-bar">
-            <p-select
-                [options]="timeframeOptions"
-                optionLabel="label"
-                optionValue="value"
-                [(ngModel)]="timeframe"
-                [showClear]="timeframe !== 'all'"
-                (onClear)="timeframe = 'all'"
-            ></p-select>
-            <p-select
-                [options]="categoryOptions"
-                optionLabel="label"
-                optionValue="value"
-                [(ngModel)]="categoryId"
-                [showClear]="categoryId !== null"
-            ></p-select>
-            <p-select
-                [options]="statusOptions"
-                optionLabel="label"
-                optionValue="value"
-                [(ngModel)]="status"
-                [showClear]="status !== null"
-            ></p-select>
-            <div class="filter-actions">
-                @if (hasActiveFilters) {
-                    <p-button
-                        label="Clear All"
-                        [text]="true"
-                        severity="secondary"
-                        icon="pi pi-filter-slash"
-                        (onClick)="clearAll()"
-                    ></p-button>
-                }
-                <p-button
-                    label="Apply"
-                    icon="pi pi-check"
-                    [loading]="loading"
-                    (onClick)="loadStats()"
-                ></p-button>
-            </div>
+    </div>
+
+    <div class="filter-bar">
+        <p-select
+            [options]="timeframeOptions"
+            optionLabel="label"
+            optionValue="value"
+            [(ngModel)]="timeframe"
+            [showClear]="timeframe !== 'all'"
+            (onClear)="timeframe = 'all'"
+        ></p-select>
+        <p-select [options]="categoryOptions" optionLabel="label" optionValue="value" [(ngModel)]="categoryId" [showClear]="categoryId !== null"></p-select>
+        <p-select [options]="statusOptions" optionLabel="label" optionValue="value" [(ngModel)]="status" [showClear]="status !== null"></p-select>
+        <div class="filter-actions">
+            @if (hasActiveFilters) {
+                <p-button label="Clear All" [text]="true" severity="secondary" icon="pi pi-filter-slash" (onClick)="clearAll()"></p-button>
+            }
+            <p-button label="Apply" icon="pi pi-check" [loading]="loading" (onClick)="loadStats()"></p-button>
         </div>
     </div>
 
-    <!-- Stat cards (skeleton while loading) -->
-    @if (loading) {
-        <div class="stats-grid">
-            @for (_ of [1, 2, 3, 4, 5, 6]; track $index) {
-                <p-skeleton height="90px" borderRadius="12px"></p-skeleton>
-            }
-        </div>
-    } @else if (stats) {
-        <div class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-icon revenue"><i class="pi pi-dollar"></i></div>
-                <div class="stat-info">
-                    <span class="stat-value">{{ stats.revenue | currency:'USD':'symbol':'1.0-0' }}</span>
-                    <span class="stat-label">Revenue</span>
+    <!-- Scrollable content -->
+    <div class="dashboard-content">
+        <!-- Stat cards (skeleton while loading) -->
+        @if (loading) {
+            <div class="stats-grid">
+                @for (_ of [1, 2, 3, 4, 5, 6]; track $index) {
+                    <p-skeleton height="90px" borderRadius="12px"></p-skeleton>
+                }
+            </div>
+        } @else if (stats) {
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon revenue"><i class="pi pi-dollar"></i></div>
+                    <div class="stat-info">
+                        <span class="stat-value">{{ stats.revenue | currency: "USD" : "symbol" : "1.0-0" }}</span>
+                        <span class="stat-label">Revenue</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon profit"><i class="pi pi-arrow-up-right"></i></div>
+                    <div class="stat-info">
+                        <span class="stat-value">{{ stats.profit | currency: "USD" : "symbol" : "1.0-0" }}</span>
+                        <span class="stat-label">Profit</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon orders"><i class="pi pi-shopping-bag"></i></div>
+                    <div class="stat-info">
+                        <span class="stat-value">{{ stats.orderCount | number }}</span>
+                        <span class="stat-label">Orders</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon avg"><i class="pi pi-chart-line"></i></div>
+                    <div class="stat-info">
+                        <span class="stat-value">{{ stats.avgOrderValue | currency: "USD" : "symbol" : "1.0-0" }}</span>
+                        <span class="stat-label">Avg Order</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon products"><i class="pi pi-box"></i></div>
+                    <div class="stat-info">
+                        <span class="stat-value">{{ stats.totalProducts | number }}</span>
+                        <span class="stat-label">Products</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon users"><i class="pi pi-users"></i></div>
+                    <div class="stat-info">
+                        <span class="stat-value">{{ stats.totalUsers | number }}</span>
+                        <span class="stat-label">Users</span>
+                    </div>
                 </div>
             </div>
-            <div class="stat-card">
-                <div class="stat-icon profit"><i class="pi pi-arrow-up-right"></i></div>
-                <div class="stat-info">
-                    <span class="stat-value">{{ stats.profit | currency:'USD':'symbol':'1.0-0' }}</span>
-                    <span class="stat-label">Profit</span>
-                </div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon orders"><i class="pi pi-shopping-bag"></i></div>
-                <div class="stat-info">
-                    <span class="stat-value">{{ stats.orderCount | number }}</span>
-                    <span class="stat-label">Orders</span>
-                </div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon avg"><i class="pi pi-chart-line"></i></div>
-                <div class="stat-info">
-                    <span class="stat-value">{{ stats.avgOrderValue | currency:'USD':'symbol':'1.0-0' }}</span>
-                    <span class="stat-label">Avg Order</span>
-                </div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon products"><i class="pi pi-box"></i></div>
-                <div class="stat-info">
-                    <span class="stat-value">{{ stats.totalProducts | number }}</span>
-                    <span class="stat-label">Products</span>
-                </div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon users"><i class="pi pi-users"></i></div>
-                <div class="stat-info">
-                    <span class="stat-value">{{ stats.totalUsers | number }}</span>
-                    <span class="stat-label">Users</span>
-                </div>
-            </div>
-        </div>
-    }
+        }
 
-    @if (stats) {
-        <!-- Middle row: Orders by status + Top products -->
-        <div class="dashboard-row">
-
-            <!-- Orders by status -->
-            <div class="dash-card">
-                <h3 class="card-title">Orders by Status</h3>
-                <div class="status-bars">
-                    @for (row of statusRows; track row.key) {
-                        <div class="status-bar-row">
-                            <span class="status-name">
-                                <span class="status-dot" [ngClass]="row.key"></span>
-                                {{ row.label }}
-                            </span>
-                            <div class="bar-track">
-                                <div class="bar-fill" [ngClass]="row.key" [style.width.%]="statusPercent(row.count)"></div>
+        @if (stats) {
+            <!-- Middle row: Orders by status + Top products -->
+            <div class="dashboard-row">
+                <!-- Orders by status -->
+                <div class="dash-card">
+                    <h3 class="card-title">Orders by Status</h3>
+                    <div class="status-bars">
+                        @for (row of statusRows; track row.key) {
+                            <div class="status-bar-row">
+                                <span class="status-name">
+                                    <span class="status-dot" [ngClass]="row.key"></span>
+                                    {{ row.label }}
+                                </span>
+                                <div class="bar-track">
+                                    <div class="bar-fill" [ngClass]="row.key" [style.width.%]="statusPercent(row.count)"></div>
+                                </div>
+                                <span class="bar-count">{{ row.count }}</span>
                             </div>
-                            <span class="bar-count">{{ row.count }}</span>
-                        </div>
+                        }
+                    </div>
+                </div>
+
+                <!-- Top 5 products -->
+                <div class="dash-card">
+                    <h3 class="card-title">Top Products</h3>
+                    @if (stats.topProducts.length === 0) {
+                        <div class="empty-table-state">No sales data for the selected filters.</div>
+                    } @else {
+                        <p-table [value]="stats.topProducts" styleClass="top-products-table">
+                            <ng-template #header>
+                                <tr>
+                                    <th class="col-rank">#</th>
+                                    <th>Product</th>
+                                    <th>Category</th>
+                                    <th class="col-num">Units</th>
+                                    <th class="col-num">Revenue</th>
+                                    <th class="col-num">Profit</th>
+                                </tr>
+                            </ng-template>
+                            <ng-template #body let-product let-ri="rowIndex">
+                                <tr>
+                                    <td class="rank-cell">{{ ri + 1 }}</td>
+                                    <td class="name-cell">{{ product.name }}</td>
+                                    <td>
+                                        <span class="cat-chip">{{ product.category }}</span>
+                                    </td>
+                                    <td class="num-cell">{{ product.unitsSold }}</td>
+                                    <td class="num-cell">{{ product.revenue | currency: "USD" : "symbol" : "1.0-0" }}</td>
+                                    <td class="num-cell profit-cell">{{ product.profit | currency: "USD" : "symbol" : "1.0-0" }}</td>
+                                </tr>
+                            </ng-template>
+                        </p-table>
                     }
                 </div>
             </div>
 
-            <!-- Top 5 products -->
-            <div class="dash-card">
-                <h3 class="card-title">Top Products</h3>
-                @if (stats.topProducts.length === 0) {
-                    <div class="empty-table-state">No sales data for the selected filters.</div>
-                } @else {
-                    <p-table [value]="stats.topProducts" styleClass="top-products-table">
+            <!-- Low stock alert -->
+            @if (stats.lowStock.length > 0) {
+                <div class="dash-card">
+                    <h3 class="card-title">
+                        <i class="pi pi-exclamation-triangle warning-icon"></i>
+                        Low Stock Alert
+                    </h3>
+                    <p-table [value]="stats.lowStock" styleClass="low-stock-table">
                         <ng-template #header>
                             <tr>
-                                <th class="col-rank">#</th>
                                 <th>Product</th>
                                 <th>Category</th>
-                                <th class="col-num">Units</th>
-                                <th class="col-num">Revenue</th>
-                                <th class="col-num">Profit</th>
+                                <th class="col-num">Stock</th>
                             </tr>
                         </ng-template>
-                        <ng-template #body let-product let-ri="rowIndex">
+                        <ng-template #body let-item>
                             <tr>
-                                <td class="rank-cell">{{ ri + 1 }}</td>
-                                <td class="name-cell">{{ product.name }}</td>
-                                <td><span class="cat-chip">{{ product.category }}</span></td>
-                                <td class="num-cell">{{ product.unitsSold }}</td>
-                                <td class="num-cell">{{ product.revenue | currency:'USD':'symbol':'1.0-0' }}</td>
-                                <td class="num-cell profit-cell">{{ product.profit | currency:'USD':'symbol':'1.0-0' }}</td>
+                                <td class="name-cell">{{ item.name }}</td>
+                                <td>{{ item.category }}</td>
+                                <td class="num-cell">
+                                    <p-tag [value]="stockLabel(item.stock)" [severity]="stockSeverity(item.stock)"></p-tag>
+                                </td>
                             </tr>
                         </ng-template>
                     </p-table>
-                }
-            </div>
-
-        </div>
-
-        <!-- Low stock alert -->
-        @if (stats.lowStock.length > 0) {
-            <div class="dash-card">
-                <h3 class="card-title">
-                    <i class="pi pi-exclamation-triangle warning-icon"></i>
-                    Low Stock Alert
-                </h3>
-                <p-table [value]="stats.lowStock" styleClass="low-stock-table">
-                    <ng-template #header>
-                        <tr>
-                            <th>Product</th>
-                            <th>Category</th>
-                            <th class="col-num">Stock</th>
-                        </tr>
-                    </ng-template>
-                    <ng-template #body let-item>
-                        <tr>
-                            <td class="name-cell">{{ item.name }}</td>
-                            <td>{{ item.category }}</td>
-                            <td class="num-cell">
-                                <p-tag
-                                    [value]="stockLabel(item.stock)"
-                                    [severity]="stockSeverity(item.stock)"
-                                ></p-tag>
-                            </td>
-                        </tr>
-                    </ng-template>
-                </p-table>
-            </div>
-        } @else {
-            <div class="dash-card no-low-stock">
-                <i class="pi pi-check-circle"></i>
-                <span>All products are sufficiently stocked</span>
-            </div>
+                </div>
+            } @else {
+                <div class="dash-card no-low-stock">
+                    <i class="pi pi-check-circle"></i>
+                    <span>All products are sufficiently stocked</span>
+                </div>
+            }
         }
-    }
-
+    </div>
 </div>

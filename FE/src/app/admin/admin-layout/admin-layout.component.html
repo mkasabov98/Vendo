@@ -26,11 +26,27 @@
                 <i class="pi pi-receipt"></i>
                 <span>Orders</span>
             </a>
-            <a class="nav-item disabled" routerLink="/admin/users" routerLinkActive="active">
+            <button class="nav-item nav-group-toggle" (click)="toggleUsers()" [class.expanded]="usersExpanded">
                 <i class="pi pi-users"></i>
                 <span>Users</span>
-            </a>
+                <i class="pi pi-chevron-down nav-chevron"></i>
+            </button>
+            @if (usersExpanded) {
+                <a class="nav-item nav-sub" routerLink="/admin/users/customers" routerLinkActive="active">
+                    <i class="pi pi-user"></i>
+                    <span>Customers</span>
+                </a>
+                <a class="nav-item nav-sub" routerLink="/admin/users/admins" routerLinkActive="active">
+                    <i class="pi pi-shield"></i>
+                    <span>Admins</span>
+                </a>
+            }
         </nav>
+
+        <div class="sidebar-user">
+            <i class="pi pi-user-circle"></i>
+            <span class="sidebar-user-email">{{ userEmail }}</span>
+        </div>
 
         <button class="sidebar-logout" (click)="logout()">
             <i class="pi pi-sign-out"></i>
@@ -38,16 +54,7 @@
         </button>
     </aside>
 
-    <div class="admin-main">
-        <header class="admin-topbar">
-            <span class="topbar-brand">e-commerce</span>
-            <span class="topbar-user">
-                <i class="pi pi-user-circle"></i>
-                {{ userEmail }}
-            </span>
-        </header>
-        <main class="admin-content">
-            <router-outlet></router-outlet>
-        </main>
-    </div>
+    <main class="admin-content">
+        <router-outlet></router-outlet>
+    </main>
 </div>

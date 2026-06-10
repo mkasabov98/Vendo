@@ -1,194 +1,190 @@
 <div class="analytics-wrapper">
-
-    <!-- Header & Filters -->
-    <div class="analytics-header">
+    <!-- Top bar -->
+    <div class="top-bar">
         <h1 class="page-title">Analytics</h1>
-        <div class="filter-bar">
-            <p-select
-                [options]="presetOptions"
-                optionLabel="label"
-                optionValue="value"
-                [(ngModel)]="selectedPreset"
-                (onChange)="onPresetChange()"
-            ></p-select>
-
-            @if (selectedPreset === 'custom') {
-                <p-datepicker
-                    [(ngModel)]="customRange"
-                    selectionMode="range"
-                    [minDate]="minCustomDate"
-                    [maxDate]="maxCustomDate"
-                    dateFormat="M dd, yy"
-                    [readonlyInput]="true"
-                    placeholder="Select date range…"
-                    styleClass="custom-range-picker"
-                    panelStyleClass="analytics-datepicker-panel"
-                    (onSelect)="onCustomRangeSelect()"
-                ></p-datepicker>
-            }
-
-            <div class="filter-sep"></div>
-
-            <p-select
-                [options]="groupingOptions"
-                optionLabel="label"
-                optionValue="value"
-                optionDisabled="disabled"
-                [(ngModel)]="selectedGroupBy"
-                (onChange)="onGroupByChange()"
-            ></p-select>
-
-        </div>
     </div>
 
-    <!-- Row 1: Revenue & Profit (full width) -->
-    <div class="a-card">
-        <div class="card-header">
-            <h3 class="card-title">Revenue &amp; Profit Over Time</h3>
-            <span class="chip">Grouped by {{ selectedGroupByLabel }}</span>
-        </div>
-        @if (loadingTimeseries) {
-            <p-skeleton height="300px" borderRadius="8px"></p-skeleton>
-        } @else if (noTimeseriesData) {
-            <div class="empty-state"><i class="pi pi-chart-line"></i><span>Not enough data for the selected period</span></div>
-        } @else {
-            <p-chart type="line" [data]="revenueChartData" [options]="lineChartOptions" height="300px"></p-chart>
+    <div class="filter-bar">
+        <p-select [options]="presetOptions" optionLabel="label" optionValue="value" [(ngModel)]="selectedPreset" (onChange)="onPresetChange()"></p-select>
+
+        @if (selectedPreset === "custom") {
+            <p-datepicker
+                [(ngModel)]="customRange"
+                selectionMode="range"
+                [minDate]="minCustomDate"
+                [maxDate]="maxCustomDate"
+                dateFormat="M dd, yy"
+                [readonlyInput]="true"
+                placeholder="Select date range…"
+                styleClass="custom-range-picker"
+                panelStyleClass="analytics-datepicker-panel"
+                (onSelect)="onCustomRangeSelect()"
+            ></p-datepicker>
         }
+
+        <div class="filter-sep"></div>
+
+        <p-select
+            [options]="groupingOptions"
+            optionLabel="label"
+            optionValue="value"
+            optionDisabled="disabled"
+            [(ngModel)]="selectedGroupBy"
+            (onChange)="onGroupByChange()"
+        ></p-select>
     </div>
 
-    <!-- Row 2: Order Volume + New Users -->
-    <div class="a-row two-col">
+    <!-- Scrollable content -->
+    <div class="analytics-content">
+        <!-- Row 1: Revenue & Profit (full width) -->
         <div class="a-card">
             <div class="card-header">
-                <h3 class="card-title">Order Volume</h3>
+                <h3 class="card-title">Revenue &amp; Profit Over Time</h3>
                 <span class="chip">Grouped by {{ selectedGroupByLabel }}</span>
             </div>
             @if (loadingTimeseries) {
-                <p-skeleton height="220px" borderRadius="8px"></p-skeleton>
+                <p-skeleton height="300px" borderRadius="8px"></p-skeleton>
             } @else if (noTimeseriesData) {
-                <div class="empty-state"><i class="pi pi-shopping-bag"></i><span>Not enough data for the selected period</span></div>
+                <div class="empty-state"><i class="pi pi-chart-line"></i><span>Not enough data for the selected period</span></div>
             } @else {
-                <p-chart type="bar" [data]="orderVolumeChartData" [options]="barChartOptions" height="220px"></p-chart>
+                <p-chart type="line" [data]="revenueChartData" [options]="lineChartOptions" height="300px"></p-chart>
             }
         </div>
-        <div class="a-card">
-            <div class="card-header">
-                <h3 class="card-title">New User Registrations</h3>
-                <span class="chip">Grouped by {{ selectedGroupByLabel }}</span>
-            </div>
-            @if (loadingTimeseries) {
-                <p-skeleton height="220px" borderRadius="8px"></p-skeleton>
-            } @else if (noUsersData) {
-                <div class="empty-state"><i class="pi pi-users"></i><span>Not enough data for the selected period</span></div>
-            } @else {
-                <p-chart type="bar" [data]="newUsersChartData" [options]="barChartOptions" height="220px"></p-chart>
-            }
-        </div>
-    </div>
 
-    <!-- Row 3: Discount Code Status + Discount Revenue Impact -->
-    <div class="a-row status-cat-row">
+        <!-- Row 2: Order Volume + New Users -->
+        <div class="a-row two-col">
+            <div class="a-card">
+                <div class="card-header">
+                    <h3 class="card-title">Order Volume</h3>
+                    <span class="chip">Grouped by {{ selectedGroupByLabel }}</span>
+                </div>
+                @if (loadingTimeseries) {
+                    <p-skeleton height="220px" borderRadius="8px"></p-skeleton>
+                } @else if (noTimeseriesData) {
+                    <div class="empty-state"><i class="pi pi-shopping-bag"></i><span>Not enough data for the selected period</span></div>
+                } @else {
+                    <p-chart type="bar" [data]="orderVolumeChartData" [options]="barChartOptions" height="220px"></p-chart>
+                }
+            </div>
+            <div class="a-card">
+                <div class="card-header">
+                    <h3 class="card-title">New User Registrations</h3>
+                    <span class="chip">Grouped by {{ selectedGroupByLabel }}</span>
+                </div>
+                @if (loadingTimeseries) {
+                    <p-skeleton height="220px" borderRadius="8px"></p-skeleton>
+                } @else if (noUsersData) {
+                    <div class="empty-state"><i class="pi pi-users"></i><span>Not enough data for the selected period</span></div>
+                } @else {
+                    <p-chart type="bar" [data]="newUsersChartData" [options]="barChartOptions" height="220px"></p-chart>
+                }
+            </div>
+        </div>
+
+        <!-- Row 3: Discount Code Status + Discount Revenue Impact -->
+        <div class="a-row status-cat-row">
+            <div class="a-card">
+                <div class="card-header">
+                    <h3 class="card-title">Discount Code Status</h3>
+                    <span class="chip period-chip">Period totals</span>
+                </div>
+                @if (loadingBreakdown) {
+                    <p-skeleton height="260px" borderRadius="8px"></p-skeleton>
+                } @else if (noDiscountStatusData) {
+                    <div class="empty-state"><i class="pi pi-ticket"></i><span>No discount codes issued in this period</span></div>
+                } @else {
+                    <p-chart type="doughnut" [data]="discountStatusChartData" [options]="statusChartOptions" height="260px"></p-chart>
+                }
+            </div>
+            <div class="a-card">
+                <div class="card-header">
+                    <h3 class="card-title">Discount Revenue Impact</h3>
+                    <span class="chip">Grouped by {{ selectedGroupByLabel }}</span>
+                </div>
+                @if (loadingTimeseries) {
+                    <p-skeleton height="260px" borderRadius="8px"></p-skeleton>
+                } @else if (noDiscountImpactData) {
+                    <div class="empty-state"><i class="pi pi-percentage"></i><span>No discounts applied in this period</span></div>
+                } @else {
+                    <p-chart type="line" [data]="discountImpactChartData" [options]="lineChartOptions" height="260px"></p-chart>
+                }
+            </div>
+        </div>
+
+        <!-- Row 4: Orders by Status + Revenue by Category -->
+        <div class="a-row status-cat-row">
+            <div class="a-card">
+                <div class="card-header">
+                    <h3 class="card-title">Orders by Status</h3>
+                    <span class="chip period-chip">Period totals</span>
+                </div>
+                @if (loadingBreakdown) {
+                    <p-skeleton height="260px" borderRadius="8px"></p-skeleton>
+                } @else if (noStatusData) {
+                    <div class="empty-state"><i class="pi pi-circle"></i><span>Not enough data for the selected period</span></div>
+                } @else {
+                    <p-chart type="doughnut" [data]="statusChartData" [options]="statusChartOptions" height="260px"></p-chart>
+                }
+            </div>
+            <div class="a-card">
+                <div class="card-header">
+                    <h3 class="card-title">Revenue by Category</h3>
+                    <span class="chip period-chip">Period totals</span>
+                </div>
+                @if (loadingBreakdown) {
+                    <p-skeleton [height]="revByCategoryHeight" borderRadius="8px"></p-skeleton>
+                } @else if (noRevByCatData) {
+                    <div class="empty-state"><i class="pi pi-tag"></i><span>Not enough data for the selected period</span></div>
+                } @else {
+                    <p-chart type="bar" [data]="revByCategoryChartData" [options]="horizBarDollarOptions" [height]="revByCategoryHeight"></p-chart>
+                }
+            </div>
+        </div>
+
+        <!-- Row 5: Top 10 Products + Profit Margin by Category -->
+        <div class="a-row two-col">
+            <div class="a-card">
+                <div class="card-header">
+                    <h3 class="card-title">Top 10 Products by Profit</h3>
+                    <span class="chip period-chip">Period totals &middot; hover for details</span>
+                </div>
+                @if (loadingBreakdown) {
+                    <p-skeleton [height]="topProductsHeight" borderRadius="8px"></p-skeleton>
+                } @else if (noTopProdData) {
+                    <div class="empty-state"><i class="pi pi-box"></i><span>Not enough data for the selected period</span></div>
+                } @else {
+                    <p-chart type="bar" [data]="topProductsChartData" [options]="topProductsOptions" [height]="topProductsHeight"></p-chart>
+                }
+            </div>
+            <div class="a-card">
+                <div class="card-header">
+                    <h3 class="card-title">Profit Margin by Category</h3>
+                    <span class="chip period-chip">Period totals</span>
+                </div>
+                @if (loadingBreakdown) {
+                    <p-skeleton [height]="marginHeight" borderRadius="8px"></p-skeleton>
+                } @else if (noMarginData) {
+                    <div class="empty-state"><i class="pi pi-percentage"></i><span>Not enough data for the selected period</span></div>
+                } @else {
+                    <p-chart type="bar" [data]="marginChartData" [options]="horizBarPctOptions" [height]="marginHeight"></p-chart>
+                }
+            </div>
+        </div>
+
+        <!-- Row 6: Revenue by Country (full width) -->
         <div class="a-card">
             <div class="card-header">
-                <h3 class="card-title">Discount Code Status</h3>
+                <h3 class="card-title">Revenue by Country <span class="card-subtitle">Top 20</span></h3>
                 <span class="chip period-chip">Period totals</span>
             </div>
             @if (loadingBreakdown) {
-                <p-skeleton height="260px" borderRadius="8px"></p-skeleton>
-            } @else if (noDiscountStatusData) {
-                <div class="empty-state"><i class="pi pi-ticket"></i><span>No discount codes issued in this period</span></div>
+                <p-skeleton [height]="revByCountryHeight" borderRadius="8px"></p-skeleton>
+            } @else if (noCountryData) {
+                <div class="empty-state"><i class="pi pi-map-marker"></i><span>Not enough data for the selected period</span></div>
             } @else {
-                <p-chart type="doughnut" [data]="discountStatusChartData" [options]="statusChartOptions" height="260px"></p-chart>
-            }
-        </div>
-        <div class="a-card">
-            <div class="card-header">
-                <h3 class="card-title">Discount Revenue Impact</h3>
-                <span class="chip">Grouped by {{ selectedGroupByLabel }}</span>
-            </div>
-            @if (loadingTimeseries) {
-                <p-skeleton height="260px" borderRadius="8px"></p-skeleton>
-            } @else if (noDiscountImpactData) {
-                <div class="empty-state"><i class="pi pi-percentage"></i><span>No discounts applied in this period</span></div>
-            } @else {
-                <p-chart type="line" [data]="discountImpactChartData" [options]="lineChartOptions" height="260px"></p-chart>
+                <p-chart type="bar" [data]="revByCountryChartData" [options]="horizBarDollarOptions" [height]="revByCountryHeight"></p-chart>
             }
         </div>
     </div>
-
-    <!-- Row 4: Orders by Status + Revenue by Category -->
-    <div class="a-row status-cat-row">
-        <div class="a-card">
-            <div class="card-header">
-                <h3 class="card-title">Orders by Status</h3>
-                <span class="chip period-chip">Period totals</span>
-            </div>
-            @if (loadingBreakdown) {
-                <p-skeleton height="260px" borderRadius="8px"></p-skeleton>
-            } @else if (noStatusData) {
-                <div class="empty-state"><i class="pi pi-circle"></i><span>Not enough data for the selected period</span></div>
-            } @else {
-                <p-chart type="doughnut" [data]="statusChartData" [options]="statusChartOptions" height="260px"></p-chart>
-            }
-        </div>
-        <div class="a-card">
-            <div class="card-header">
-                <h3 class="card-title">Revenue by Category</h3>
-                <span class="chip period-chip">Period totals</span>
-            </div>
-            @if (loadingBreakdown) {
-                <p-skeleton [height]="revByCategoryHeight" borderRadius="8px"></p-skeleton>
-            } @else if (noRevByCatData) {
-                <div class="empty-state"><i class="pi pi-tag"></i><span>Not enough data for the selected period</span></div>
-            } @else {
-                <p-chart type="bar" [data]="revByCategoryChartData" [options]="horizBarDollarOptions" [height]="revByCategoryHeight"></p-chart>
-            }
-        </div>
-    </div>
-
-    <!-- Row 5: Top 10 Products + Profit Margin by Category -->
-    <div class="a-row two-col">
-        <div class="a-card">
-            <div class="card-header">
-                <h3 class="card-title">Top 10 Products by Profit</h3>
-                <span class="chip period-chip">Period totals &middot; hover for details</span>
-            </div>
-            @if (loadingBreakdown) {
-                <p-skeleton [height]="topProductsHeight" borderRadius="8px"></p-skeleton>
-            } @else if (noTopProdData) {
-                <div class="empty-state"><i class="pi pi-box"></i><span>Not enough data for the selected period</span></div>
-            } @else {
-                <p-chart type="bar" [data]="topProductsChartData" [options]="topProductsOptions" [height]="topProductsHeight"></p-chart>
-            }
-        </div>
-        <div class="a-card">
-            <div class="card-header">
-                <h3 class="card-title">Profit Margin by Category</h3>
-                <span class="chip period-chip">Period totals</span>
-            </div>
-            @if (loadingBreakdown) {
-                <p-skeleton [height]="marginHeight" borderRadius="8px"></p-skeleton>
-            } @else if (noMarginData) {
-                <div class="empty-state"><i class="pi pi-percentage"></i><span>Not enough data for the selected period</span></div>
-            } @else {
-                <p-chart type="bar" [data]="marginChartData" [options]="horizBarPctOptions" [height]="marginHeight"></p-chart>
-            }
-        </div>
-    </div>
-
-    <!-- Row 6: Revenue by Country (full width) -->
-    <div class="a-card">
-        <div class="card-header">
-            <h3 class="card-title">Revenue by Country <span class="card-subtitle">Top 20</span></h3>
-            <span class="chip period-chip">Period totals</span>
-        </div>
-        @if (loadingBreakdown) {
-            <p-skeleton [height]="revByCountryHeight" borderRadius="8px"></p-skeleton>
-        } @else if (noCountryData) {
-            <div class="empty-state"><i class="pi pi-map-marker"></i><span>Not enough data for the selected period</span></div>
-        } @else {
-            <p-chart type="bar" [data]="revByCountryChartData" [options]="horizBarDollarOptions" [height]="revByCountryHeight"></p-chart>
-        }
-    </div>
-
+    <!-- analytics-content -->
 </div>
