@@ -22,9 +22,9 @@ export interface AdminProductsParams {
     searchString?: string;
     categories?: string;
     sortBy?: string;
-    sortDir?: 'asc' | 'desc';
-    status?: 'all' | 'active' | 'inactive';
-    stockFilter?: 'all' | 'instock' | 'lowstock' | 'outofstock';
+    sortDir?: "asc" | "desc";
+    status?: "all" | "active" | "inactive";
+    stockFilter?: "all" | "instock" | "lowstock" | "outofstock";
 }
 
 export interface AdminProductsResponse {

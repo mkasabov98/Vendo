@@ -1,6 +1,7 @@
 import { Component, OnDestroy, OnInit, ViewChild } from "@angular/core";
 import { FormsModule } from "@angular/forms";
 import { CurrencyPipe, DatePipe } from "@angular/common";
+import { ActivatedRoute } from "@angular/router";
 import { debounceTime, distinctUntilChanged, Subject, take, takeUntil } from "rxjs";
 import { ButtonModule } from "primeng/button";
 import { SelectModule } from "primeng/select";
@@ -97,9 +98,12 @@ export class OrdersComponent implements OnInit, OnDestroy {
     constructor(
         private ordersService: AdminOrdersService,
         private toastService: ToastService,
+        private route: ActivatedRoute,
     ) {}
 
     ngOnInit() {
+        const preSearch = this.route.snapshot.queryParamMap.get("search");
+        if (preSearch) this.searchValue = preSearch;
         this.searchSubject.pipe(debounceTime(400), distinctUntilChanged(), takeUntil(this.destroy$)).subscribe(() => this.resetAndLoad());
     }
 

@@ -9,6 +9,9 @@ import {
     getAdminOrderDetail,
     updateAdminOrderStatus,
     getAdminProducts,
+    getAdminCustomers,
+    getAdminAdmins,
+    getCustomerOrders,
     getAnalyticsBreakdown,
     getAnalyticsTimeseries,
     getCategories,
@@ -24,6 +27,9 @@ import {
 
 const router = Router();
 
+router.get("/users/customers", authenticate, getAdminCustomers);
+router.get("/users/customers/:id/orders", authenticate, getCustomerOrders);
+router.get("/users/admins", authenticate, getAdminAdmins);
 router.get("/orders", authenticate, getAdminOrders);
 router.get("/orders/:id", authenticate, getAdminOrderDetail);
 router.patch("/orders/:id/status", authenticate, updateAdminOrderStatus);

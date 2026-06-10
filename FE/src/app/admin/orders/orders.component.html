@@ -1,72 +1,66 @@
 <div class="orders-wrapper">
     <!-- Top bar -->
     <div class="top-bar">
-        <div class="orders-header">
-            <h1 class="page-title">Orders</h1>
+        <h1 class="page-title">Orders</h1>
+    </div>
+
+    <div class="filter-bar">
+        <div class="filter-item" pTooltip="Search by order ID or customer email" tooltipPosition="top">
+            <p-iconfield>
+                <p-inputicon styleClass="pi pi-search" />
+                <input pInputText placeholder="Order ID or email…" [(ngModel)]="searchValue" (ngModelChange)="onSearchChange($event)" class="search-input" />
+            </p-iconfield>
         </div>
 
-        <div class="filter-bar">
-            <div class="filter-item" pTooltip="Search by order ID or customer email" tooltipPosition="top">
-                <p-iconfield>
-                    <p-inputicon styleClass="pi pi-search" />
-                    <input
-                        pInputText
-                        placeholder="Order ID or email…"
-                        [(ngModel)]="searchValue"
-                        (ngModelChange)="onSearchChange($event)"
-                        class="search-input"
-                    />
-                </p-iconfield>
-            </div>
+        <div class="filter-item" pTooltip="Filter by order status" tooltipPosition="top">
+            <p-select
+                [options]="statusOptions"
+                optionLabel="label"
+                optionValue="value"
+                [(ngModel)]="statusFilter"
+                [showClear]="statusFilter !== 'all'"
+                (onClear)="statusFilter = 'all'"
+                styleClass="filter-select"
+            />
+        </div>
 
-            <div class="filter-item" pTooltip="Filter by order status" tooltipPosition="top">
-                <p-select
-                    [options]="statusOptions"
-                    optionLabel="label"
-                    optionValue="value"
-                    [(ngModel)]="statusFilter"
-                    [showClear]="statusFilter !== 'all'"
-                    (onClear)="statusFilter = 'all'"
-                    styleClass="filter-select"
-                />
-            </div>
+        <div class="filter-item" pTooltip="Filter by order date range" tooltipPosition="top">
+            <p-datepicker
+                [(ngModel)]="dateRange"
+                selectionMode="range"
+                [readonlyInput]="true"
+                placeholder="Date range…"
+                dateFormat="M dd, yy"
+                [maxDate]="today"
+                styleClass="filter-datepicker"
+                panelStyleClass="orders-datepicker-panel"
+            />
+        </div>
 
-            <div class="filter-item" pTooltip="Filter by order date range" tooltipPosition="top">
-                <p-datepicker
-                    [(ngModel)]="dateRange"
-                    selectionMode="range"
-                    [readonlyInput]="true"
-                    placeholder="Date range…"
-                    dateFormat="M dd, yy"
-                    [maxDate]="today"
-                    styleClass="filter-datepicker"
-                    panelStyleClass="orders-datepicker-panel"
-                />
-            </div>
+        <div class="filter-sep"></div>
+        <p-select
+            [options]="sortByOptions"
+            optionLabel="label"
+            optionValue="value"
+            [(ngModel)]="sortBy"
+            pTooltip="Sort by field"
+            tooltipPosition="top"
+            styleClass="filter-select"
+        />
+        <p-button
+            [icon]="sortDir === 'asc' ? 'pi pi-sort-amount-up' : 'pi pi-sort-amount-down-alt'"
+            [pTooltip]="sortDir === 'asc' ? 'Ascending' : 'Descending'"
+            tooltipPosition="top"
+            severity="secondary"
+            [outlined]="true"
+            (onClick)="toggleSortDir()"
+        />
 
-            <div class="filter-actions">
-                <p-select
-                    [options]="sortByOptions"
-                    optionLabel="label"
-                    optionValue="value"
-                    [(ngModel)]="sortBy"
-                    pTooltip="Sort by field"
-                    tooltipPosition="top"
-                    styleClass="filter-select"
-                />
-                <p-button
-                    [icon]="sortDir === 'asc' ? 'pi pi-sort-amount-up' : 'pi pi-sort-amount-down-alt'"
-                    [pTooltip]="sortDir === 'asc' ? 'Ascending' : 'Descending'"
-                    tooltipPosition="top"
-                    severity="secondary"
-                    [outlined]="true"
-                    (onClick)="toggleSortDir()"
-                />
-                @if (hasActiveFilters) {
-                    <p-button label="Clear" icon="pi pi-filter-slash" [text]="true" severity="secondary" (onClick)="clearAll()" />
-                }
-                <p-button label="Apply" icon="pi pi-check" [loading]="loading" (onClick)="applyFilters()" />
-            </div>
+        <div class="filter-actions">
+            @if (hasActiveFilters) {
+                <p-button label="Clear" icon="pi pi-filter-slash" [text]="true" severity="secondary" (onClick)="clearAll()" />
+            }
+            <p-button label="Apply" icon="pi pi-check" [loading]="loading" (onClick)="applyFilters()" />
         </div>
     </div>
 

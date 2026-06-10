@@ -1,0 +1,309 @@
+<div class="users-wrapper">
+    <!-- ── Top bar ──────────────────────────────────────────────── -->
+    <div class="top-bar">
+        @if (section === "customers") {
+            <h1 class="page-title">Customers</h1>
+        } @else {
+            <h1 class="page-title">Admins</h1>
+        }
+        @if (section === "admins") {
+            <div class="header-actions">
+                <p-button label="Create Admin" icon="pi pi-plus" size="small" (onClick)="openCreateAdmin()" />
+                <p-button label="Change My Password" icon="pi pi-lock" severity="danger" size="small" (onClick)="openChangePassword()" />
+            </div>
+        }
+    </div>
+
+    <!-- ── Customers section ────────────────────────────────────── -->
+    @if (section === "customers") {
+        <div class="filter-bar">
+            <p-iconfield>
+                <p-inputicon styleClass="pi pi-search" />
+                <input pInputText placeholder="Search by email…" [(ngModel)]="searchValue" (ngModelChange)="onSearchChange($event)" class="search-input" />
+            </p-iconfield>
+
+            <p-select
+                [options]="sortOptions"
+                optionLabel="label"
+                optionValue="value"
+                [(ngModel)]="sortBy"
+                (onChange)="applyFilters()"
+                pTooltip="Sort by field"
+                tooltipPosition="top"
+                styleClass="filter-select"
+            />
+            <p-button
+                [icon]="sortDir === 'asc' ? 'pi pi-sort-amount-up' : 'pi pi-sort-amount-down-alt'"
+                [pTooltip]="sortDir === 'asc' ? 'Ascending' : 'Descending'"
+                tooltipPosition="top"
+                severity="secondary"
+                [outlined]="true"
+                (onClick)="toggleSortDir()"
+            />
+
+            @if (hasCustomerFilters) {
+                <div class="filter-actions">
+                    <p-button label="Clear" icon="pi pi-filter-slash" [text]="true" severity="secondary" (onClick)="clearCustomerFilters()" />
+                </div>
+            }
+        </div>
+
+        <div class="table-card">
+            <p-table
+                #dt
+                [value]="customers"
+                [lazy]="true"
+                [loading]="loadingCustomers"
+                [paginator]="true"
+                [rows]="itemsPerPage"
+                [rowsPerPageOptions]="[10, 20, 50]"
+                [totalRecords]="totalCustomers"
+                (onLazyLoad)="onLazyLoad($event)"
+                (onRowExpand)="onRowExpand($event)"
+                [rowHover]="true"
+                dataKey="id"
+                [expandedRowKeys]="expandedRows"
+                [scrollable]="true"
+                scrollHeight="flex"
+                styleClass="users-table"
+            >
+                <ng-template #header>
+                    <tr>
+                        <th style="width: 3rem"></th>
+                        <th>Email</th>
+                        <th style="width: 130px">Joined</th>
+                        <th style="width: 90px">Orders</th>
+                        <th style="width: 130px">Total Spent</th>
+                        <th style="width: 130px">Last Order</th>
+                    </tr>
+                </ng-template>
+
+                <ng-template #body let-customer let-expanded="expanded">
+                    <tr class="customer-row">
+                        <td>
+                            <p-button
+                                [pRowToggler]="customer"
+                                [pRowTogglerDisabled]="customer.orderCount === 0"
+                                [text]="true"
+                                [rounded]="true"
+                                [plain]="true"
+                                [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
+                                [style]="{ opacity: customer.orderCount === 0 ? '0.2' : '1', cursor: customer.orderCount === 0 ? 'default' : 'pointer' }"
+                                size="small"
+                            />
+                        </td>
+                        <td class="email-cell">{{ customer.email }}</td>
+                        <td class="date-cell">{{ customer.createdAt | date: "MMM d, y" }}</td>
+                        <td class="numeric">{{ customer.orderCount }}</td>
+                        <td class="numeric">{{ customer.totalSpent | currency }}</td>
+                        <td class="date-cell">
+                            {{ customer.lastOrderDate ? (customer.lastOrderDate | date: "MMM d, y") : "—" }}
+                        </td>
+                    </tr>
+                </ng-template>
+
+                <ng-template #expandedrow let-customer>
+                    <tr class="expansion-row">
+                        <td colspan="6">
+                            <div class="expansion-body">
+                                <div class="expansion-header">
+                                    <span class="expansion-title">Recent Orders</span>
+                                    <p-button
+                                        label="View All in Orders"
+                                        icon="pi pi-arrow-right"
+                                        iconPos="right"
+                                        [text]="true"
+                                        size="small"
+                                        (onClick)="viewInOrders(customer.email)"
+                                    />
+                                </div>
+
+                                @if (customerOrdersLoading[customer.id]) {
+                                    <div class="expansion-loading">
+                                        <i class="pi pi-spin pi-spinner"></i>
+                                        <span>Loading orders…</span>
+                                    </div>
+                                } @else if (!customerOrders[customer.id]?.length) {
+                                    <p class="expansion-empty">No orders yet</p>
+                                } @else {
+                                    <p-table [value]="customerOrders[customer.id]" styleClass="inner-table">
+                                        <ng-template #header>
+                                            <tr>
+                                                <th style="width: 80px">#</th>
+                                                <th style="width: 130px">Date</th>
+                                                <th style="width: 80px">Items</th>
+                                                <th style="width: 120px">Total</th>
+                                                <th style="width: 110px">Status</th>
+                                            </tr>
+                                        </ng-template>
+                                        <ng-template #body let-order>
+                                            <tr>
+                                                <td class="id-cell">#{{ order.id }}</td>
+                                                <td class="date-cell">{{ order.createdAt | date: "MMM d, y" }}</td>
+                                                <td class="numeric">{{ order.itemCount }}</td>
+                                                <td class="numeric">{{ order.totalAmount | currency }}</td>
+                                                <td>
+                                                    <p-tag [value]="orderStatusLabel(order.status)" [severity]="orderStatusSeverity(order.status)" />
+                                                </td>
+                                            </tr>
+                                        </ng-template>
+                                    </p-table>
+                                }
+                            </div>
+                        </td>
+                    </tr>
+                </ng-template>
+
+                <ng-template #emptymessage>
+                    <tr>
+                        <td colspan="6" class="empty-state">
+                            <i class="pi pi-users"></i>
+                            <span>No customers found</span>
+                        </td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        </div>
+    }
+
+    <!-- ── Admins section ───────────────────────────────────────── -->
+    @if (section === "admins") {
+        <div class="table-card table-card--compact">
+            <p-table [value]="admins" [loading]="loadingAdmins" [rowHover]="true" styleClass="users-table">
+                <ng-template #header>
+                    <tr>
+                        <th>Email</th>
+                        <th style="width: 160px">Joined</th>
+                    </tr>
+                </ng-template>
+
+                <ng-template #body let-admin>
+                    <tr>
+                        <td class="email-cell">{{ admin.email }}</td>
+                        <td class="date-cell">{{ admin.createdAt | date: "MMM d, y" }}</td>
+                    </tr>
+                </ng-template>
+
+                <ng-template #emptymessage>
+                    <tr>
+                        <td colspan="2" class="empty-state">
+                            <i class="pi pi-shield"></i>
+                            <span>No admin accounts found</span>
+                        </td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        </div>
+    }
+</div>
+
+<!-- ── Create Admin Dialog ──────────────────────────────────────────── -->
+<p-dialog
+    header="Create Admin Account"
+    [(visible)]="showCreateAdmin"
+    [modal]="true"
+    [draggable]="false"
+    [dismissableMask]="true"
+    [style]="{ width: '420px' }"
+    (onHide)="createErrors = []"
+>
+    <div class="dialog-body">
+        <div class="field">
+            <label class="field-label">Email</label>
+            <input pInputText type="email" [(ngModel)]="adminEmail" placeholder="admin@example.com" class="w-full" />
+        </div>
+        <div class="field">
+            <label class="field-label">Password</label>
+            <p-password
+                [(ngModel)]="adminPassword"
+                [toggleMask]="true"
+                [feedback]="false"
+                placeholder="Min. 8 characters"
+                styleClass="w-full"
+                inputStyleClass="w-full"
+            />
+        </div>
+        <div class="field">
+            <label class="field-label">Confirm Password</label>
+            <p-password
+                [(ngModel)]="adminConfirm"
+                [toggleMask]="true"
+                [feedback]="false"
+                placeholder="Repeat password"
+                styleClass="w-full"
+                inputStyleClass="w-full"
+                (keydown.enter)="submitCreateAdmin()"
+            />
+        </div>
+        @if (createErrors.length) {
+            <div class="error-list">
+                @for (err of createErrors; track err) {
+                    <p class="error-item"><i class="pi pi-exclamation-circle"></i> {{ err }}</p>
+                }
+            </div>
+        }
+    </div>
+    <ng-template #footer>
+        <p-button label="Cancel" severity="secondary" [outlined]="true" [disabled]="creatingAdmin" (onClick)="showCreateAdmin = false" />
+        <p-button label="Create" icon="pi pi-check" [loading]="creatingAdmin" (onClick)="submitCreateAdmin()" />
+    </ng-template>
+</p-dialog>
+
+<!-- ── Change Password Dialog ───────────────────────────────────────── -->
+<p-dialog
+    header="Change My Password"
+    [(visible)]="showChangePassword"
+    [modal]="true"
+    [draggable]="false"
+    [dismissableMask]="true"
+    [style]="{ width: '420px' }"
+    (onHide)="passwordErrors = []"
+>
+    <div class="dialog-body">
+        <div class="field">
+            <label class="field-label">Current Password</label>
+            <p-password
+                [(ngModel)]="currentPassword"
+                [toggleMask]="true"
+                [feedback]="false"
+                placeholder="Enter current password"
+                styleClass="w-full"
+                inputStyleClass="w-full"
+            />
+        </div>
+        <div class="field">
+            <label class="field-label">New Password</label>
+            <p-password
+                [(ngModel)]="newPassword"
+                [toggleMask]="true"
+                [feedback]="false"
+                placeholder="Min. 8 characters"
+                styleClass="w-full"
+                inputStyleClass="w-full"
+            />
+        </div>
+        <div class="field">
+            <label class="field-label">Confirm New Password</label>
+            <p-password
+                [(ngModel)]="confirmPassword"
+                [toggleMask]="true"
+                [feedback]="false"
+                placeholder="Repeat new password"
+                styleClass="w-full"
+                inputStyleClass="w-full"
+                (keydown.enter)="submitChangePassword()"
+            />
+        </div>
+        @if (passwordErrors.length) {
+            <div class="error-list">
+                @for (err of passwordErrors; track err) {
+                    <p class="error-item"><i class="pi pi-exclamation-circle"></i> {{ err }}</p>
+                }
+            </div>
+        }
+    </div>
+    <ng-template #footer>
+        <p-button label="Cancel" severity="secondary" [outlined]="true" [disabled]="changingPassword" (onClick)="showChangePassword = false" />
+        <p-button label="Update Password" icon="pi pi-check" [loading]="changingPassword" (onClick)="submitChangePassword()" />
+    </ng-template>
+</p-dialog>

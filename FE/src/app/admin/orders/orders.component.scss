@@ -9,18 +9,12 @@
 
 .top-bar {
     flex-shrink: 0;
-    padding: 24px 32px 16px;
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-    background: var(--p-surface-50);
-    border-bottom: 1px solid var(--p-surface-200);
-}
-
-.orders-header {
+    padding: 20px 32px;
     display: flex;
     align-items: center;
     justify-content: space-between;
+    background: var(--p-surface-50);
+    border-bottom: 1px solid var(--p-surface-200);
 }
 
 .page-title {
@@ -34,10 +28,20 @@
 // ── Filter bar ─────────────────────────────────────────────────
 
 .filter-bar {
+    flex-shrink: 0;
     display: flex;
     align-items: center;
     gap: 8px;
+    padding: 12px 32px;
+    background: var(--p-surface-50);
     flex-wrap: wrap;
+}
+
+.filter-sep {
+    width: 1px;
+    height: 28px;
+    background: var(--p-surface-200);
+    margin: 0 4px;
 }
 
 .filter-item {
@@ -58,9 +62,7 @@
 }
 
 ::ng-deep .orders-datepicker-panel {
-    left: 50% !important;
-    transform: translateX(-50%);
-    animation: datepicker-reveal 0s linear 60ms both;
+    animation: datepicker-reveal 0s linear 150ms both;
 }
 
 @keyframes datepicker-reveal {
@@ -76,9 +78,7 @@
     display: flex;
     align-items: center;
     gap: 6px;
-    padding-left: 10px;
-    border-left: 1px solid var(--p-surface-200);
-    margin-left: 2px;
+    margin-left: auto;
 }
 
 // ── Table card ─────────────────────────────────────────────────
