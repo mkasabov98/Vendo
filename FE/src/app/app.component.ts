@@ -1,11 +1,11 @@
 import { Component, OnInit } from "@angular/core";
 import { RouterOutlet } from "@angular/router";
 import { ToastModule } from "primeng/toast";
-import { ToastService } from "./services/toast.service";
-import { AuthService } from "./services/auth.service";
-import { CartService } from "./services/cart.service";
+import { ToastService } from "./shared/services/toast.service";
+import { AuthService } from "./auth/services/auth.service";
+import { CartService } from "./storefront/services/cart.service";
 import { concatMap, of, take } from "rxjs";
-import { UserRoles } from "./models/auth.models";
+import { UserRoles } from "./auth/models/auth.models";
 // import { NavigationBarComponent } from "./components/navigation-bar/navigation-bar.component";
 
 @Component({

@@ -6,8 +6,8 @@ import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { providePrimeNG } from 'primeng/config'
 import Aura from '@primeuix/themes/aura'
-import { authInterceptor } from './interceptors/auth.interceptor';
-import { ToastService } from './services/toast.service';
+import { authInterceptor } from './shared/interceptors/auth.interceptor';
+import { ToastService } from './shared/services/toast.service';
 import { MessageService } from 'primeng/api';
 import ECommercePreset from '../e-com-preset';
 

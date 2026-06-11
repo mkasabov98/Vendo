@@ -43,7 +43,9 @@
       "mcp__git__git_diff_unstaged",
       "mcp__git__git_diff_staged",
       "Bash(Find C:\\\\Users\\\\User\\\\desktop\\\\e-commerce\\\\FE\\\\src\\\\app\\\\components *)",
-      "Bash(Remove-Item *)"
+      "Bash(Remove-Item *)",
+      "Bash(rm services/toast.service.ts constants/constants.ts utils/stock.utils.ts guards/admin.guard.ts guards/user.guard.ts guards/non-admin.guard.ts guards/cart.guard.ts interceptors/auth.interceptor.ts)",
+      "Bash(rmdir services *)"
     ]
   },
   "enableAllProjectMcpServers": true

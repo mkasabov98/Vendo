@@ -7,7 +7,7 @@ import { DatePickerModule } from "primeng/datepicker";
 import { SkeletonModule } from "primeng/skeleton";
 import { AnalyticsService } from "../services/analytics.service";
 import { AnalyticsBreakdown, AnalyticsTimeseriesResponse } from "../models/analytics.models";
-import { ToastService } from "../../services/toast.service";
+import { ToastService } from "../../shared/services/toast.service";
 
 type GroupBy = "day" | "week" | "month" | "quarter";
 type Preset = "week" | "month" | "qtd" | "ytd" | "custom";

@@ -17,8 +17,8 @@ import { DialogModule } from "primeng/dialog";
 import { AdminProductsService } from "../services/admin-products.service";
 import { AdminCategoriesService } from "../services/admin-categories.service";
 import { AdminProduct, AdminProductsParams } from "../models/admin-products.models";
-import { ToastService } from "../../services/toast.service";
-import { getInventorySeverity } from "../../utils/stock.utils";
+import { ToastService } from "../../shared/services/toast.service";
+import { getInventorySeverity } from "../../shared/utils/stock.utils";
 
 @Component({
     selector: "app-admin-products",

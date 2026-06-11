@@ -1,5 +1,5 @@
-export { OrderStatus, ORDER_STATUS_LABEL, ORDER_STATUS_SEVERITY } from "../../models/order.models";
-import { OrderStatus } from "../../models/order.models";
+export { OrderStatus, ORDER_STATUS_LABEL, ORDER_STATUS_SEVERITY } from "../../storefront/models/order.models";
+import { OrderStatus } from "../../storefront/models/order.models";
 
 export const ORDER_TRANSITIONS: Record<number, OrderStatus[]> = {
     [OrderStatus.Paid]: [OrderStatus.Shipped, OrderStatus.Cancelled],

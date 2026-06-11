@@ -1,13 +1,13 @@
 import { Routes } from '@angular/router';
-import { HomePage } from './components/home-page/home-page.component';
-import { CartComponent } from './components/cart/cart.component';
-import { userGuard } from './guards/user.guard';
-import { adminGuard } from './guards/admin.guard';
-import { nonAdminGuard } from './guards/non-admin.guard';
-import { LayoutComponent } from './components/layout/layout.component';
-import { ProfileComponent } from './components/profile/profile.component';
-import { ProductPageComponent } from './components/product-page/product-page.component';
-import { cartGuard } from './guards/cart.guard';
+import { HomePage } from './storefront/home-page/home-page.component';
+import { CartComponent } from './storefront/cart/cart.component';
+import { userGuard } from './shared/guards/user.guard';
+import { adminGuard } from './shared/guards/admin.guard';
+import { nonAdminGuard } from './shared/guards/non-admin.guard';
+import { LayoutComponent } from './storefront/layout/layout.component';
+import { ProfileComponent } from './storefront/profile/profile.component';
+import { ProductPageComponent } from './storefront/product-page/product-page.component';
+import { cartGuard } from './shared/guards/cart.guard';
 
 export const routes: Routes = [
     {

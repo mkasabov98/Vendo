@@ -13,7 +13,7 @@ import { SkeletonModule } from "primeng/skeleton";
 import { TooltipModule } from "primeng/tooltip";
 import { AdminCategoriesService } from "../services/admin-categories.service";
 import { AdminCategory, CategoryAnalyticsItem, CategoryTopProduct } from "../models/admin-categories.models";
-import { ToastService } from "../../services/toast.service";
+import { ToastService } from "../../shared/services/toast.service";
 
 const PALETTE = ["#3b82f6", "#22c55e", "#f97316", "#8b5cf6", "#ec4899", "#14b8a6", "#f59e0b", "#ef4444", "#6366f1", "#84cc16"];
 

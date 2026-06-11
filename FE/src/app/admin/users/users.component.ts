@@ -16,8 +16,8 @@ import { TagModule } from "primeng/tag";
 import { PasswordModule } from "primeng/password";
 import { AdminUsersService } from "../services/admin-users.service";
 import { AdminCustomer, AdminUser, CustomerOrder, AdminCustomersParams } from "../models/admin-users.models";
-import { OrderStatus, ORDER_STATUS_LABEL, ORDER_STATUS_SEVERITY } from "../../models/order.models";
-import { ToastService } from "../../services/toast.service";
+import { OrderStatus, ORDER_STATUS_LABEL, ORDER_STATUS_SEVERITY } from "../../storefront/models/order.models";
+import { ToastService } from "../../shared/services/toast.service";
 
 @Component({
     selector: "app-admin-users",
