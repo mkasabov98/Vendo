@@ -1,8 +1,8 @@
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from "@angular/router";
 import { filter, Subject, takeUntil } from "rxjs";
-import { AuthService } from "../../services/auth.service";
-import { NO_USER } from "../../constants/constants";
+import { AuthService } from "../../auth/services/auth.service";
+import { NO_USER } from "../../shared/constants/constants";
 
 @Component({
     selector: "app-admin-layout",

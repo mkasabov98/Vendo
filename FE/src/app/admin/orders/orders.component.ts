@@ -17,7 +17,7 @@ import { DatePickerModule } from "primeng/datepicker";
 import { SkeletonModule } from "primeng/skeleton";
 import { AdminOrdersService, AdminOrdersParams } from "../services/admin-orders.service";
 import { AdminOrderDetail, AdminOrderListItem, canTransitionTo, OrderStatus, ORDER_STATUS_LABEL, ORDER_STATUS_SEVERITY } from "../models/admin-orders.models";
-import { ToastService } from "../../services/toast.service";
+import { ToastService } from "../../shared/services/toast.service";
 
 @Component({
     selector: "app-admin-orders",

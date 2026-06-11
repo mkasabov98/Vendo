@@ -13,7 +13,7 @@ import { DialogModule } from "primeng/dialog";
 import { AdminProduct } from "../../models/admin-products.models";
 import { AdminProductsService } from "../../services/admin-products.service";
 import { AdminCategoriesService } from "../../services/admin-categories.service";
-import { ToastService } from "../../../services/toast.service";
+import { ToastService } from "../../../shared/services/toast.service";
 
 export type ProductFormMode = "create" | "edit" | "copy";
 

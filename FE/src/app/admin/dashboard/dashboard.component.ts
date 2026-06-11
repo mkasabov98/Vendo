@@ -10,7 +10,7 @@ import { TagModule } from "primeng/tag";
 import { DashboardService } from "../services/dashboard.service";
 import { DashboardStats } from "../models/dashboard.models";
 import { AdminCategoriesService } from "../services/admin-categories.service";
-import { ToastService } from "../../services/toast.service";
+import { ToastService } from "../../shared/services/toast.service";
 
 @Component({
     selector: "app-dashboard",
