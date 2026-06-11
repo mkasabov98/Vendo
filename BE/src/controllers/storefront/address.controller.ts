@@ -1,8 +1,8 @@
 import { NextFunction, Response } from "express";
-import { AuthRequest } from "../middlewares/authenticate.middleware";
-import { UserRoles } from "../enums/user-enums.enum";
-import { Address } from "../models/address.model";
-import sequelize from "../config/database";
+import { AuthRequest } from "../../middlewares/authenticate.middleware";
+import { UserRoles } from "../../enums/user-enums.enum";
+import { Address } from "../../models/address.model";
+import sequelize from "../../config/database";
 
 export const createAddress = async (req: AuthRequest, res: Response, next: NextFunction) => {
     const user = req.user;
@@ -75,8 +75,6 @@ export const setDefaultAddress = async (req: AuthRequest, res: Response, next: N
     }
 };
 
-//Currently cannot delete an address that has been used for an order as Order has FK pointing to the address
-//Should work on this in future
 export const deleteAddress = async (req: AuthRequest, res: Response, next: NextFunction) => {
     const user = req.user;
     const addressId = req.params.addressId;

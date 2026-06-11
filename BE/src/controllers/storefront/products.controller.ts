@@ -1,8 +1,7 @@
 import { NextFunction, Request, Response } from "express";
-import { Product } from "../models/product.model";
-import { ProductCategory } from "../models/category.model";
-import { FindAndCountOptions, Op, Sequelize } from "sequelize";
-import { Review } from "../models/review.model";
+import { Product } from "../../models/product.model";
+import { ProductCategory } from "../../models/category.model";
+import { FindAndCountOptions, Op } from "sequelize";
 
 export interface ProductQueryParams {
     limit: number;
@@ -96,9 +95,9 @@ export const getAllProducts = async (req: Request, res: Response, next: NextFunc
     }
 };
 
-//GET /app/products/specificProducts
+// GET /app/products/specificProducts
 export const getSpecificProducts = async (req: Request, res: Response, next: NextFunction) => {
-    const {productsIds} = req.query;
+    const { productsIds } = req.query;
     let updatedProductsIds: number[] = [];
     if (!productsIds) {
         updatedProductsIds = [];
@@ -134,7 +133,7 @@ export const getSpecificProducts = async (req: Request, res: Response, next: Nex
             isActive: x.isActive && (x.ProductCategory?.isActive !== false),
         }));
 
-        res.status(200).json({items: flattedProducts})
+        res.status(200).json({ items: flattedProducts });
     } catch (error) {
         next(error);
     }
@@ -157,7 +156,7 @@ export const getProductById = async (req: Request, res: Response, next: NextFunc
     }
 };
 
-//Get /app/products/categories
+// GET /app/products/categories
 export const getAllCategories = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const categories = await ProductCategory.findAll({

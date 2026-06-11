@@ -1,6 +1,6 @@
 import { Router } from "express";
-import { authenticate } from "../middlewares/authenticate.middleware";
-import { createAddress, getAddresses, deleteAddress, updateAddress, setDefaultAddress } from "../controllers/address.controller";
+import { authenticate } from "../../middlewares/authenticate.middleware";
+import { createAddress, getAddresses, deleteAddress, updateAddress, setDefaultAddress } from "../../controllers/storefront/address.controller";
 
 const router = Router();
 

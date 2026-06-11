@@ -1,7 +1,7 @@
 import { Router } from "express";
-import { bulkUpdateCart, deleteProductFromCart, getAllProductsInCart, updateCartProduct, validateDiscountCode, removeDiscountCode } from "../controllers/cart.controller";
-import { authenticate } from "../middlewares/authenticate.middleware";
-import { createPaymentIntent } from "../controllers/order.controller";
+import { bulkUpdateCart, deleteProductFromCart, getAllProductsInCart, updateCartProduct, validateDiscountCode, removeDiscountCode } from "../../controllers/storefront/cart.controller";
+import { authenticate } from "../../middlewares/authenticate.middleware";
+import { createPaymentIntent } from "../../controllers/storefront/order.controller";
 
 const router = Router();
 

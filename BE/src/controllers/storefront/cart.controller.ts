@@ -1,16 +1,15 @@
 import { NextFunction, Response } from "express";
-import { AuthRequest } from "../middlewares/authenticate.middleware";
-import { UserRoles } from "../enums/user-enums.enum";
-import { User } from "../models/user.model";
-import { Cart } from "../models/cart.model";
-import { CartProduct } from "../models/cartProduct.model";
-import { Product } from "../models/product.model";
-import { DiscountCode } from "../models/discountCode.model";
-import sequelize from "../config/database";
-import { ProductCategory } from "../models/category.model";
+import { AuthRequest } from "../../middlewares/authenticate.middleware";
+import { UserRoles } from "../../enums/user-enums.enum";
+import { User } from "../../models/user.model";
+import { Cart } from "../../models/cart.model";
+import { CartProduct } from "../../models/cartProduct.model";
+import { Product } from "../../models/product.model";
+import { DiscountCode } from "../../models/discountCode.model";
+import sequelize from "../../config/database";
+import { ProductCategory } from "../../models/category.model";
 
-//Patch app/cart/updateProduct
-//Used to add product to the cart if not existing or update the quantity of the product
+// PATCH app/cart/updateProduct
 export const updateCartProduct = async (req: AuthRequest, res: Response, next: NextFunction) => {
     const product: { productId: number; quantity: number; increment?: boolean } = req.body;
     const userId = req.user.id;
@@ -64,7 +63,7 @@ export const updateCartProduct = async (req: AuthRequest, res: Response, next: N
     }
 };
 
-//Patch app/cart/updateCart
+// PATCH app/cart/updateCart
 export const bulkUpdateCart = async (req: AuthRequest, res: Response, next: NextFunction) => {
     const products: { productId: number; productQuantity: number }[] = req.body;
     const user = req.user;
@@ -113,7 +112,7 @@ export const bulkUpdateCart = async (req: AuthRequest, res: Response, next: Next
     }
 };
 
-//POST app/cart/deleteProduct/:productId
+// DELETE app/cart/deleteProduct/:productId
 export const deleteProductFromCart = async (req: AuthRequest, res: Response, next: NextFunction) => {
     const productId = req.params.productId;
     const userId = req.user.id;
@@ -137,6 +136,7 @@ export const deleteProductFromCart = async (req: AuthRequest, res: Response, nex
     }
 };
 
+// GET app/cart
 export const getAllProductsInCart = async (req: AuthRequest, res: Response, next: NextFunction) => {
     const userId = req.user.id;
     try {

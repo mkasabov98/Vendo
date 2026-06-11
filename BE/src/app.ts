@@ -6,17 +6,13 @@ import sequelize from "./config/database";
 import "./models/index";
 import { DiscountCode } from "./models/discountCode.model";
 //Routes
-import productRoutes from "./routes/products.routes";
-import userRoutes from "./routes/user.routes";
-import adminRoutes from "./routes/admin.routes";
-import cartRoutes from "./routes/cart.routes";
-import orderRoutes from "./routes/order.routes";
-import addressRoutes from "./routes/address.routes";
-import authRoutes from "./routes/auth.routes";
-import reviewRoutes from "./routes/review.routes";
+import adminRoutes from "./routes/admin/index";
+import storefrontRoutes from "./routes/storefront/index";
+import authRoutes from "./routes/shared/auth.routes";
+import userRoutes from "./routes/shared/user.routes";
 //Middlewares
 import { errorHandler } from "./middlewares/errorHandler";
-import { handleStripeWebhook } from "./controllers/order.controller";
+import { handleStripeWebhook } from "./controllers/storefront/order.controller";
 
 const app = express();
 
@@ -26,14 +22,10 @@ app.use(cors());
 app.use(express.json());
 
 //Routes
-app.use("/app/products", productRoutes);
-app.use("/app/user", userRoutes);
+app.use("/app", storefrontRoutes);
 app.use("/app/admin", adminRoutes);
-app.use("/app/cart", cartRoutes);
-app.use("/app/order", orderRoutes);
-app.use("/app/address", addressRoutes);
 app.use("/app/auth", authRoutes);
-app.use("/app/review", reviewRoutes);
+app.use("/app/user", userRoutes);
 
 app.use(errorHandler);
 

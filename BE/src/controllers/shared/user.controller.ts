@@ -1,6 +1,6 @@
 import { NextFunction, Response } from "express";
-import { User } from "../models/user.model";
-import { AuthRequest } from "../middlewares/authenticate.middleware";
+import { User } from "../../models/user.model";
+import { AuthRequest } from "../../middlewares/authenticate.middleware";
 
 export const changePassword = async (req: AuthRequest, res: Response, next: NextFunction) => {
     const { currentPassword, newPassword } = req.body;
@@ -21,7 +21,6 @@ export const changePassword = async (req: AuthRequest, res: Response, next: Next
     }
 };
 
-//POST /app/user/delete
 export const deleteUser = async (req: AuthRequest, res: Response, next: NextFunction) => {
     const userId = req.user.id;
     try {

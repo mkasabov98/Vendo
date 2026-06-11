@@ -1,20 +1,20 @@
 import { NextFunction, Request, Response } from "express";
 import { Transaction } from "sequelize";
-import { AuthRequest } from "../middlewares/authenticate.middleware";
-import { UserRoles } from "../enums/user-enums.enum";
-import { Cart } from "../models/cart.model";
-import { CartProduct } from "../models/cartProduct.model";
-import { Product } from "../models/product.model";
-import { Order } from "../models/order.model";
-import { OrderStatuses } from "../enums/order-enums.enum";
-import sequelize from "../config/database";
-import { OrderProduct } from "../models/orderProduct.model";
-import { Address } from "../models/address.model";
-import stripe from "../config/stripe";
+import { AuthRequest } from "../../middlewares/authenticate.middleware";
+import { UserRoles } from "../../enums/user-enums.enum";
+import { Cart } from "../../models/cart.model";
+import { CartProduct } from "../../models/cartProduct.model";
+import { Product } from "../../models/product.model";
+import { Order } from "../../models/order.model";
+import { OrderStatuses } from "../../enums/order-enums.enum";
+import sequelize from "../../config/database";
+import { OrderProduct } from "../../models/orderProduct.model";
+import { Address } from "../../models/address.model";
+import stripe from "../../config/stripe";
 import Stripe from "stripe";
-import { User } from "../models/user.model";
-import { DiscountCode } from "../models/discountCode.model";
-import { sendOrderConfirmationEmail } from "../services/email.service";
+import { User } from "../../models/user.model";
+import { DiscountCode } from "../../models/discountCode.model";
+import { sendOrderConfirmationEmail } from "../../services/email.service";
 
 interface WebhookRequest extends Request {
     rawBody: Buffer;

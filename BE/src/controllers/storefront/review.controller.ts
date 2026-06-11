@@ -1,14 +1,14 @@
 import { NextFunction, Response } from "express";
-import { AuthRequest } from "../middlewares/authenticate.middleware";
-import { UserRoles } from "../enums/user-enums.enum";
-import { OrderProduct } from "../models/orderProduct.model";
-import { Order } from "../models/order.model";
-import { OrderStatuses } from "../enums/order-enums.enum";
-import { Review } from "../models/review.model";
-import { Product } from "../models/product.model";
-import { User } from "../models/user.model";
+import { AuthRequest } from "../../middlewares/authenticate.middleware";
+import { UserRoles } from "../../enums/user-enums.enum";
+import { OrderProduct } from "../../models/orderProduct.model";
+import { Order } from "../../models/order.model";
+import { OrderStatuses } from "../../enums/order-enums.enum";
+import { Review } from "../../models/review.model";
+import { Product } from "../../models/product.model";
+import { User } from "../../models/user.model";
 import { literal } from "sequelize";
-import sequelize from "../config/database";
+import sequelize from "../../config/database";
 
 // POST app/review
 export const createReview = async (req: AuthRequest, res: Response, next: NextFunction) => {
