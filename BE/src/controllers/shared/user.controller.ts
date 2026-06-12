@@ -21,21 +21,3 @@ export const changePassword = async (req: AuthRequest, res: Response, next: Next
     }
 };
 
-export const deleteUser = async (req: AuthRequest, res: Response, next: NextFunction) => {
-    const userId = req.user.id;
-    try {
-        const existingUser = await User.findByPk(userId);
-        if (!existingUser) {
-            throw {
-                status: 400,
-                message: "No user found with that userId",
-            };
-        }
-        await existingUser.destroy();
-        res.status(200).json({
-            message: "User deleted",
-        });
-    } catch (error) {
-        next(error);
-    }
-};

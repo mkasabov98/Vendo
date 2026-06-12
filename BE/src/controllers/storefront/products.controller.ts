@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { Product } from "../../models/product.model";
 import { ProductCategory } from "../../models/category.model";
-import { FindAndCountOptions, Op } from "sequelize";
+import { FindAndCountOptions, Op, literal } from "sequelize";
 
 export interface ProductQueryParams {
     limit: number;
@@ -160,7 +160,14 @@ export const getProductById = async (req: Request, res: Response, next: NextFunc
 export const getAllCategories = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const categories = await ProductCategory.findAll({
-            where: { isActive: true },
+            where: {
+                isActive: true,
+                id: {
+                    [Op.in]: literal(
+                        "(SELECT DISTINCT productCategoryId FROM Products WHERE isActive = 1 AND productCategoryId IS NOT NULL)"
+                    ),
+                },
+            },
             attributes: ["id", "categoryName"],
         });
         res.status(200).json(categories);

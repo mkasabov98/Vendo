@@ -17,7 +17,7 @@
     <p-drawer
         [(visible)]="visible"
         position="bottom"
-        styleClass="mobile-form-drawer mobile-form-drawer--tall"
+        styleClass="mobile-form-drawer"
         (onHide)="resetForm()"
     >
         <ng-template #header>
@@ -37,13 +37,13 @@
             </p-floatlabel>
             <p-floatlabel class="w-full" variant="on">
                 <p-select [options]="states" formControlName="state" id="state"
-                    optionLabel="name" [filter]="true" filterBy="name" class="w-full"></p-select>
+                    optionLabel="name" [filter]="true" filterBy="name" [loading]="isLoadingStates" class="w-full"></p-select>
                 <label for="state">State / Region</label>
             </p-floatlabel>
             <p-floatlabel class="w-full" variant="on">
                 <p-select [options]="cities" [virtualScroll]="true" [virtualScrollItemSize]="37"
                     formControlName="city" id="city" optionLabel="name"
-                    [filter]="true" filterBy="name" class="w-full"></p-select>
+                    [filter]="true" filterBy="name" [loading]="isLoadingCities" class="w-full"></p-select>
                 <label for="city">City</label>
             </p-floatlabel>
             <p-floatlabel variant="on" class="w-full">

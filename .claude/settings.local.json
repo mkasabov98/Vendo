@@ -45,7 +45,13 @@
       "Bash(Find C:\\\\Users\\\\User\\\\desktop\\\\e-commerce\\\\FE\\\\src\\\\app\\\\components *)",
       "Bash(Remove-Item *)",
       "Bash(rm services/toast.service.ts constants/constants.ts utils/stock.utils.ts guards/admin.guard.ts guards/user.guard.ts guards/non-admin.guard.ts guards/cart.guard.ts interceptors/auth.interceptor.ts)",
-      "Bash(rmdir services *)"
+      "Bash(rmdir services *)",
+      "PowerShell(Get-ChildItem -Path \"C:\\\\Users\\\\User\\\\desktop\\\\e-commerce\" -Recurse -Filter \"angular.json\" -File | ForEach-Object { $_.FullName })",
+      "PowerShell(Get-ChildItem -Path \"C:\\\\Users\\\\User\\\\desktop\\\\e-commerce\" -Depth 0 | ForEach-Object { \"$\\($_.FullName\\) [$\\(if \\($_.PSIsContainer\\) { 'DIR' } else { 'FILE' }\\)]\" })",
+      "PowerShell(Get-ChildItem -Path \"C:\\\\Users\\\\User\\\\desktop\\\\e-commerce\" -Filter \"package.json\" -File | ForEach-Object { $_.FullName })",
+      "PowerShell(Get-ChildItem -Path \"C:\\\\Users\\\\User\\\\desktop\\\\e-commerce\\\\BE\\\\src\\\\routes\" -Recurse | ForEach-Object { $_.FullName })",
+      "PowerShell(Get-ChildItem -Path \"C:\\\\Users\\\\User\\\\desktop\\\\e-commerce\" -Depth 1 -File | ForEach-Object { $_.Name })",
+      "PowerShell(Get-ChildItem -Path \"C:\\\\Users\\\\User\\\\desktop\\\\e-commerce\\\\BE\" -Depth 0 -File | ForEach-Object { $_.Name })"
     ]
   },
   "enableAllProjectMcpServers": true

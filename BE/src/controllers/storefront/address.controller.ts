@@ -95,11 +95,13 @@ export const deleteAddress = async (req: AuthRequest, res: Response, next: NextF
 export const updateAddress = async (req: AuthRequest, res: Response, next: NextFunction) => {
     const user = req.user;
     const body = req.body;
+    const addressId = parseInt(req.params.addressId, 10);
 
     try {
         if (user?.role !== UserRoles.User) throw { status: 401, message: "Unauthorized" };
 
-        let address = await Address.findByPk(body.id);
+        let address = await Address.findByPk(addressId);
+        if (!address) throw { status: 404, message: "Address not found" };
         if (address.userId !== user.id) throw { status: 401, message: "Unauthorized" };
 
         await address.update({

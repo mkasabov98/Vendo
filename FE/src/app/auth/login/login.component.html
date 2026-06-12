@@ -5,24 +5,23 @@
         header="Log in"
         [modal]="true"
         [(visible)]="visible"
-        [style]="{ width: '30rem' }"
-        [contentStyle]="{ height: '17rem' }"
+        [style]="{ width: '28rem' }"
         (onHide)="onHideDialog()"
     >
         <form [formGroup]="loginForm" (ngSubmit)="onFormSubmit()" class="login-form">
-            <div class="form-body">
-                <p-floatLabel variant="on">
-                    <input pInputText id="email-d" pSize="large" formControlName="email" />
-                    <label for="email-d">Email</label>
-                </p-floatLabel>
-                <p-floatLabel variant="on">
-                    <p-password id="password-d" size="large" formControlName="password"
-                        [toggleMask]="true" [feedback]="false" />
-                    <label for="password-d">Password</label>
-                </p-floatLabel>
-            </div>
-            <div class="submit-button">
-                <p-button type="Submit" [disabled]="loginForm.invalid">Log in</p-button>
+            <p-floatLabel variant="on">
+                <input pInputText id="login-email-d" type="email" formControlName="email" class="w-full" />
+                <label for="login-email-d">Email</label>
+            </p-floatLabel>
+            <p-floatLabel variant="on">
+                <p-password id="login-pw-d" formControlName="password"
+                    [toggleMask]="true" [feedback]="false"
+                    styleClass="w-full" inputStyleClass="w-full"
+                    (keydown.enter)="onFormSubmit()" />
+                <label for="login-pw-d">Password</label>
+            </p-floatLabel>
+            <div class="form-actions">
+                <p-button type="submit" [disabled]="loginForm.invalid || isLoading" [loading]="isLoading">Log in</p-button>
             </div>
         </form>
     </p-dialog>
@@ -39,19 +38,19 @@
             <span class="drawer-form-title">Log in</span>
         </ng-template>
         <form [formGroup]="loginForm" (ngSubmit)="onFormSubmit()" class="login-form">
-            <div class="form-body">
-                <p-floatLabel variant="on">
-                    <input pInputText id="email-m" pSize="large" formControlName="email" />
-                    <label for="email-m">Email</label>
-                </p-floatLabel>
-                <p-floatLabel variant="on">
-                    <p-password id="password-m" size="large" formControlName="password"
-                        [toggleMask]="true" [feedback]="false" />
-                    <label for="password-m">Password</label>
-                </p-floatLabel>
-            </div>
-            <div class="submit-button">
-                <p-button type="Submit" [disabled]="loginForm.invalid" styleClass="w-full">Log in</p-button>
+            <p-floatLabel variant="on">
+                <input pInputText id="login-email-m" type="email" formControlName="email" class="w-full" />
+                <label for="login-email-m">Email</label>
+            </p-floatLabel>
+            <p-floatLabel variant="on">
+                <p-password id="login-pw-m" formControlName="password"
+                    [toggleMask]="true" [feedback]="false"
+                    styleClass="w-full" inputStyleClass="w-full"
+                    (keydown.enter)="onFormSubmit()" />
+                <label for="login-pw-m">Password</label>
+            </p-floatLabel>
+            <div class="form-actions form-actions--mobile">
+                <p-button type="submit" [disabled]="loginForm.invalid || isLoading" [loading]="isLoading" styleClass="w-full">Log in</p-button>
             </div>
         </form>
     </p-drawer>

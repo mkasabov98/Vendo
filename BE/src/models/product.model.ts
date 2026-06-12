@@ -78,7 +78,7 @@ Product.init(
         imageUrl: {
             type: DataTypes.TEXT,
             allowNull: false,
-            defaultValue: "https://s13emagst.akamaized.net/products/92844/92843211/images/res_dbe5508e65ad2167a08d5b3d0dc6b4fd.jpg",
+            defaultValue: "https://placehold.co/400x300?text=No+Image",
         },
         stock: {
             type: DataTypes.INTEGER.UNSIGNED,
@@ -107,7 +107,7 @@ Product.init(
 );
 
 Product.beforeValidate((product: Product) => {
-    product.stock = product.stock || 0;
+    product.stock = product.stock ?? 0;
     const sp = Number(product.supplyPrice);
     const m = Number(product.margin);
     product.finalPrice = sp * (1 + m / 100);

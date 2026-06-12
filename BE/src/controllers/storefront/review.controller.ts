@@ -20,6 +20,10 @@ export const createReview = async (req: AuthRequest, res: Response, next: NextFu
             throw { status: 401, message: "Unauthorized" };
         }
 
+        if (!Number.isInteger(body.starReview) || body.starReview < 1 || body.starReview > 5) {
+            throw { status: 400, message: "starReview must be a whole number between 1 and 5." };
+        }
+
         const existingReview = await Review.findOne({
             where: {
                 userId: user.id,
@@ -141,10 +145,21 @@ export const updateReview = async (req: AuthRequest, res: Response, next: NextFu
             throw { status: 401, message: "Unauthorized" };
         }
 
+        if (!Number.isInteger(body.starReview) || body.starReview < 1 || body.starReview > 5) {
+            throw { status: 400, message: "starReview must be a whole number between 1 and 5." };
+        }
+
         const review = await Review.findOne({ where: { id: reviewId, userId: user.id } });
 
         if (!review) {
             throw { status: 404, message: "Review not found." };
+        }
+
+        const deliveredOrder = await Order.findOne({
+            where: { id: review.orderId, userId: user.id, status: OrderStatuses.Delivered },
+        });
+        if (!deliveredOrder) {
+            throw { status: 403, message: "You can only edit a review for a delivered order." };
         }
 
         const t = await sequelize.transaction();

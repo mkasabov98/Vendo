@@ -13,7 +13,7 @@ import { FloatLabelModule } from "primeng/floatlabel";
 import { PasswordModule } from "primeng/password";
 import { TooltipModule } from "primeng/tooltip";
 import { ConfirmationService } from "primeng/api";
-import { Order, ORDER_STATUS_LABEL, ORDER_STATUS_SEVERITY, OrderStatus } from "../models/order.models";
+import { Order, ORDER_STATUS_LABEL, ORDER_STATUS_SEVERITY, ORDER_STATUS_TOOLTIP, OrderStatus } from "../models/order.models";
 import { OrderService } from "../services/order.service";
 import { address } from "../models/address.models";
 import { AddressService } from "../services/address.service";
@@ -51,6 +51,7 @@ export class ProfileComponent implements OnInit {
     public isLoading = true;
     public addressesLoading = true;
     public reOrderingId: number | null = null;
+    public isSettingDefaultId: number | null = null;
 
     public submittingPassword = false;
     public passwordForm = new FormGroup(
@@ -142,6 +143,7 @@ export class ProfileComponent implements OnInit {
     }
 
     setDefaultAddress(id: number) {
+        this.isSettingDefaultId = id;
         this.addressService
             .setDefaultAddress(id)
             .pipe(take(1))
@@ -149,8 +151,12 @@ export class ProfileComponent implements OnInit {
                 next: () => {
                     this.addresses = this.addresses.map((a) => ({ ...a, isDefault: a.id === id }));
                     this.toastService.show("Default address updated.", "success");
+                    this.isSettingDefaultId = null;
                 },
-                error: (err) => this.toastService.show(err.error?.message ?? "Failed to update default address", "warn"),
+                error: (err) => {
+                    this.toastService.show(err.error?.message ?? "Failed to update default address", "warn");
+                    this.isSettingDefaultId = null;
+                },
             });
     }
 
@@ -203,6 +209,18 @@ export class ProfileComponent implements OnInit {
         (event.target as HTMLImageElement).src = "https://placehold.co/400x300?text=No+Image";
     }
 
+    confirmChangePassword() {
+        if (this.passwordForm.invalid || this.submittingPassword) return;
+        this.confirmationService.confirm({
+            message: "Are you sure you want to change your password?",
+            header: "Change Password",
+            icon: "pi pi-lock",
+            rejectButtonProps: { label: "Cancel", severity: "secondary", outlined: true },
+            acceptButtonProps: { label: "Confirm", severity: "danger" },
+            accept: () => this.changePassword(),
+        });
+    }
+
     changePassword() {
         if (this.passwordForm.invalid || this.submittingPassword) return;
         const { currentPassword, newPassword } = this.passwordForm.value;
@@ -229,5 +247,9 @@ export class ProfileComponent implements OnInit {
 
     getStatusSeverity(status: OrderStatus): "warn" | "info" | "secondary" | "success" | "danger" {
         return ORDER_STATUS_SEVERITY[status] ?? "secondary";
+    }
+
+    getStatusTooltip(status: OrderStatus): string {
+        return ORDER_STATUS_TOOLTIP[status] ?? "";
     }
 }

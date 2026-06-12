@@ -164,6 +164,17 @@ td.col-total { text-align: right; }
     }
 }
 
+.stock-limit-notice {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.78rem;
+    color: var(--p-orange-600);
+    font-weight: 500;
+
+    i { font-size: 0.78rem; flex-shrink: 0; }
+}
+
 .unavailable-row {
     opacity: 0.55;
 }
@@ -177,6 +188,24 @@ td.col-total { text-align: right; }
 .unavailable-total {
     color: var(--p-text-muted-color);
     font-weight: 400;
+}
+
+.mobile-confirm-content {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.confirm-message {
+    font-size: 0.95rem;
+    color: var(--p-surface-700);
+    margin: 0;
+}
+
+.confirm-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
 }
 
 // Compact quantity stepper

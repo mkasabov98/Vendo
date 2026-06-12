@@ -66,6 +66,8 @@
                                         <p-tag
                                             [value]="getStatusLabel(order.status)"
                                             [severity]="getStatusSeverity(order.status)"
+                                            [pTooltip]="getStatusTooltip(order.status)"
+                                            tooltipPosition="top"
                                         />
                                     </div>
                                 </p-accordion-header>
@@ -169,6 +171,8 @@
                                                 size="small"
                                                 severity="secondary"
                                                 [text]="true"
+                                                [loading]="isSettingDefaultId === addr.id"
+                                                [disabled]="isSettingDefaultId !== null"
                                                 (onClick)="setDefaultAddress(addr.id!)"
                                             />
                                         }
@@ -190,7 +194,7 @@
             <p-tabpanel value="security">
                 <div class="security-panel">
                     <h3 class="security-title">Change Password</h3>
-                    <form [formGroup]="passwordForm" (ngSubmit)="changePassword()" class="password-form">
+                    <form [formGroup]="passwordForm" (ngSubmit)="confirmChangePassword()" class="password-form">
                         <p-floatlabel variant="on" class="w-full">
                             <p-password
                                 id="currentPassword"

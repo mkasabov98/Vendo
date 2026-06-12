@@ -15,18 +15,7 @@
             <span class="stock-badge low-stock">Only {{ product.stock }} left</span>
         }
 
-        @if (loggedUser.role !== UserRoles.Admin) {
-            <div class="hover-overlay">
-                <p-button
-                    icon="pi pi-cart-plus"
-                    label="Quick Add"
-                    [disabled]="product.stock === 0 || product.isActive === false"
-                    (onClick)="addToCart($event)"
-                    size="small"
-                    styleClass="quick-add-btn"
-                />
-            </div>
-        }
+        <div class="hover-overlay"></div>
     </div>
 
     <!-- Body -->

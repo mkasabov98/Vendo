@@ -42,6 +42,7 @@ export const getAnalyticsTimeseries = async (req: AuthRequest, res: Response, ne
                         COUNT(*) AS orderCount
                  FROM Orders o
                  WHERE DATE(o.createdAt) BETWEEN DATE(:startDate) AND DATE(:endDate)
+                   AND o.status NOT IN (0, 4)
                  GROUP BY period ORDER BY period ASC`,
                 { replacements: repl, type: QueryTypes.SELECT },
             ) as Promise<any[]>,
@@ -52,6 +53,7 @@ export const getAnalyticsTimeseries = async (req: AuthRequest, res: Response, ne
                  JOIN OrderProducts op ON op.orderId = o.id
                  JOIN Products p ON p.id = op.productId
                  WHERE DATE(o.createdAt) BETWEEN DATE(:startDate) AND DATE(:endDate)
+                   AND o.status NOT IN (0, 4)
                  GROUP BY period ORDER BY period ASC`,
                 { replacements: repl, type: QueryTypes.SELECT },
             ) as Promise<any[]>,
@@ -109,7 +111,7 @@ export const getAnalyticsBreakdown = async (req: AuthRequest, res: Response, nex
         if (!startDate || !endDate) throw { status: 400, message: "startDate and endDate are required" };
 
         const repl = { startDate, endDate };
-        const dateF = `DATE(o.createdAt) BETWEEN DATE(:startDate) AND DATE(:endDate)`;
+        const dateF = `DATE(o.createdAt) BETWEEN DATE(:startDate) AND DATE(:endDate) AND o.status NOT IN (0, 4)`;
 
         const [statusRows, revByCategory, topProducts, revByCountry, marginByCategory, discountStatusRows] = await Promise.all([
             sequelize.query(
@@ -148,6 +150,7 @@ export const getAnalyticsBreakdown = async (req: AuthRequest, res: Response, nex
                         COUNT(*) AS orderCount
                  FROM Orders
                  WHERE DATE(createdAt) BETWEEN DATE(:startDate) AND DATE(:endDate)
+                   AND status NOT IN (0, 4)
                    AND shippingCountry IS NOT NULL AND shippingCountry != ''
                  GROUP BY shippingCountry ORDER BY revenue DESC LIMIT 20`,
                 { replacements: repl, type: QueryTypes.SELECT },

@@ -22,7 +22,6 @@ p-select .p-overlay {
 .mobile-form-drawer {
     border-radius: 20px 20px 0 0 !important;
     height: auto !important;
-    min-height: 50vh !important;
     max-height: 92vh !important;
 
     .p-drawer-header {
@@ -34,10 +33,6 @@ p-select .p-overlay {
         padding: 1.5rem !important;
         overflow-y: auto;
     }
-}
-
-.mobile-form-drawer--tall {
-    min-height: 75vh !important;
 }
 
 .drawer-form-title {

@@ -70,6 +70,12 @@
                 <p class="product-description-short">{{ product.description }}</p>
 
                 @if (loggedUser.role !== UserRoles.Admin) {
+                    @if (quantity >= product.stock && product.stock > 0) {
+                        <div class="stock-limit-notice">
+                            <i class="pi pi-info-circle"></i>
+                            <span>Maximum available quantity reached</span>
+                        </div>
+                    }
                     <div class="add-to-cart-row">
                         <p-inputnumber
                             [(ngModel)]="quantity"

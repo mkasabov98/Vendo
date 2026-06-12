@@ -14,9 +14,18 @@
             <p-button label="Browse Products" icon="pi pi-arrow-right" iconPos="right" routerLink="/e-com" />
         </div>
     } @else {
-        <app-cart-table></app-cart-table>
-        @if (loggedUser.id !== NO_USER.id && showStepper) {
-            <app-process-order id="checkout-section" (paymentComplete)="onPaymentComplete()"></app-process-order>
-        }
+        <div class="cart-main">
+            <app-cart-table></app-cart-table>
+            @if (loggedUser.id !== NO_USER.id && showStepper) {
+                <app-process-order id="checkout-section" (paymentComplete)="onPaymentComplete()"></app-process-order>
+            }
+            @if (loggedUser.id === NO_USER.id) {
+                <div class="guest-cta-panel">
+                    <i class="pi pi-lock"></i>
+                    <h3>Ready to check out?</h3>
+                    <p>Log in or create an account to complete your order.</p>
+                </div>
+            }
+        </div>
     }
 </div>

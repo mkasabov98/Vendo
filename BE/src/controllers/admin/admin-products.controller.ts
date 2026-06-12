@@ -13,6 +13,10 @@ export const createProduct = async (req: AuthRequest, res: Response, next: NextF
         if (!isAdmin(req.user)) {
             throw { status: 401, message: "Unauthorized" };
         }
+        if (body.margin !== undefined && body.margin < 0) {
+            throw { status: 400, message: "Margin cannot be negative" };
+        }
+        if (body.imageUrl === "") delete (body as any).imageUrl;
         const newProduct = await Product.create({ ...body, reviewsCount: 0 });
         await newProduct.reload({
             include: [{ model: ProductCategory, as: "ProductCategory", attributes: ["id", "categoryName", "isActive"] }],
@@ -57,7 +61,10 @@ export const updateProduct = async (req: AuthRequest, res: Response, next: NextF
         if (description !== undefined) product.description = description;
         if (productCategoryId !== undefined) product.productCategoryId = productCategoryId;
         if (supplyPrice !== undefined) product.supplyPrice = supplyPrice;
-        if (margin !== undefined) product.margin = margin;
+        if (margin !== undefined) {
+            if (margin < 0) throw { status: 400, message: "Margin cannot be negative" };
+            product.margin = margin;
+        }
         if (imageUrl !== undefined) product.imageUrl = imageUrl;
         if (stock !== undefined) product.stock = stock;
         if (isActive !== undefined) product.isActive = isActive;

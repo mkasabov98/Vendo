@@ -6,40 +6,35 @@
         [modal]="true"
         [(visible)]="registerModalVisible"
         [style]="{ width: '30rem' }"
-        [contentStyle]="{ height: '22rem' }"
         (onHide)="onCloseRegisterFrom()"
     >
         <form [formGroup]="registerForm" (ngSubmit)="onRegisterFormSubmit()" class="register-form">
-            <div class="form-body">
-                <div class="password-wrapper">
-                    <p-floatLabel variant="on">
-                        <input pInputText id="email-d" pSize="large" formControlName="email" />
-                        <label for="email-d">Email</label>
-                    </p-floatLabel>
-                    @if (isInvalidEmail('email')) {
-                        <p-message severity="error" size="small" variant="simple" class="error-message">
-                            Enter valid email
-                        </p-message>
+            <p-floatLabel variant="on">
+                <input pInputText id="reg-email-d" type="email" formControlName="email" class="w-full" />
+                <label for="reg-email-d">Email</label>
+            </p-floatLabel>
+            <p-floatLabel variant="on">
+                <p-password id="reg-pw-d" formControlName="password"
+                    [toggleMask]="true" [feedback]="false"
+                    styleClass="w-full" inputStyleClass="w-full" />
+                <label for="reg-pw-d">Password</label>
+            </p-floatLabel>
+            <p-floatLabel variant="on">
+                <p-password id="reg-confirm-d" formControlName="confirmPassword"
+                    [toggleMask]="true" [feedback]="false"
+                    styleClass="w-full" inputStyleClass="w-full"
+                    (keydown.enter)="onRegisterFormSubmit()" />
+                <label for="reg-confirm-d">Confirm Password</label>
+            </p-floatLabel>
+            @if (formErrors.length) {
+                <div class="error-list">
+                    @for (err of formErrors; track err) {
+                        <p class="error-item"><i class="pi pi-exclamation-circle"></i> {{ err }}</p>
                     }
                 </div>
-                <p-floatlabel variant="on">
-                    <p-password id="password-d" size="large" [toggleMask]="true" formControlName="password"
-                        [pTooltip]="passwordTooltip">
-                        <ng-template #passwordTooltip tooltipPosition="top">
-                            <ul>
-                                <li>At least one lowercase</li>
-                                <li>At least one uppercase</li>
-                                <li>At least one numeric</li>
-                                <li>At least one special character</li>
-                                <li>Minimum 8 characters</li>
-                            </ul>
-                        </ng-template>
-                    </p-password>
-                    <label for="password-d">Password</label>
-                </p-floatlabel>
-            </div>
-            <div class="submit-button">
-                <p-button type="Submit" [disabled]="disableRegisterButton()">Register</p-button>
+            }
+            <div class="form-actions">
+                <p-button type="submit" [loading]="isLoading">Register</p-button>
             </div>
         </form>
     </p-dialog>
@@ -56,36 +51,32 @@
             <span class="drawer-form-title">Register</span>
         </ng-template>
         <form [formGroup]="registerForm" (ngSubmit)="onRegisterFormSubmit()" class="register-form">
-            <div class="form-body">
-                <div class="password-wrapper">
-                    <p-floatLabel variant="on">
-                        <input pInputText id="email-m" pSize="large" formControlName="email" />
-                        <label for="email-m">Email</label>
-                    </p-floatLabel>
-                    @if (isInvalidEmail('email')) {
-                        <p-message severity="error" size="small" variant="simple" class="error-message">
-                            Enter valid email
-                        </p-message>
+            <p-floatLabel variant="on">
+                <input pInputText id="reg-email-m" type="email" formControlName="email" class="w-full" />
+                <label for="reg-email-m">Email</label>
+            </p-floatLabel>
+            <p-floatLabel variant="on">
+                <p-password id="reg-pw-m" formControlName="password"
+                    [toggleMask]="true" [feedback]="false"
+                    styleClass="w-full" inputStyleClass="w-full" />
+                <label for="reg-pw-m">Password</label>
+            </p-floatLabel>
+            <p-floatLabel variant="on">
+                <p-password id="reg-confirm-m" formControlName="confirmPassword"
+                    [toggleMask]="true" [feedback]="false"
+                    styleClass="w-full" inputStyleClass="w-full"
+                    (keydown.enter)="onRegisterFormSubmit()" />
+                <label for="reg-confirm-m">Confirm Password</label>
+            </p-floatLabel>
+            @if (formErrors.length) {
+                <div class="error-list">
+                    @for (err of formErrors; track err) {
+                        <p class="error-item"><i class="pi pi-exclamation-circle"></i> {{ err }}</p>
                     }
                 </div>
-                <p-floatlabel variant="on">
-                    <p-password id="password-m" size="large" [toggleMask]="true" formControlName="password"
-                        [pTooltip]="passwordTooltip">
-                        <ng-template #passwordTooltip tooltipPosition="top">
-                            <ul>
-                                <li>At least one lowercase</li>
-                                <li>At least one uppercase</li>
-                                <li>At least one numeric</li>
-                                <li>At least one special character</li>
-                                <li>Minimum 8 characters</li>
-                            </ul>
-                        </ng-template>
-                    </p-password>
-                    <label for="password-m">Password</label>
-                </p-floatlabel>
-            </div>
-            <div class="submit-button">
-                <p-button type="Submit" [disabled]="disableRegisterButton()" styleClass="w-full">Register</p-button>
+            }
+            <div class="form-actions form-actions--mobile">
+                <p-button type="submit" [loading]="isLoading" styleClass="w-full">Register</p-button>
             </div>
         </form>
     </p-drawer>

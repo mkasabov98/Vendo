@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from "@angular/core";
+import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from "@angular/core";
 import { AuthService } from "../../auth/services/auth.service";
 import { debounceTime, distinctUntilChanged, filter, Subject, takeUntil } from "rxjs";
 import { RegisterComponent } from "../../auth/register/register.component";
@@ -44,11 +44,16 @@ export class NavigationBarComponent implements OnInit, OnDestroy {
     public isMobile = typeof window !== "undefined" && window.innerWidth <= 768;
     public mobileMenuOpen = false;
 
+    @ViewChild('mobileSearchInput') mobileSearchInput?: ElementRef<HTMLInputElement>;
+
     private _mobileSearchOpen = false;
     get mobileSearchOpen() { return this._mobileSearchOpen; }
     set mobileSearchOpen(val: boolean) {
         this._mobileSearchOpen = val;
         document.documentElement.style.setProperty('--search-bar-offset', val ? '64px' : '0px');
+        if (val) {
+            setTimeout(() => this.mobileSearchInput?.nativeElement?.focus(), 150);
+        }
     }
 
     constructor(
@@ -124,6 +129,18 @@ export class NavigationBarComponent implements OnInit, OnDestroy {
         if (this.router.url.startsWith('/e-com/product/')) {
             this.router.navigate(['/e-com']);
         }
+    }
+
+    fireMobileSearch() {
+        this.mobileSearchInput?.nativeElement?.blur();
+        this.productsService.filtersSubject.next({
+            ...this.productsService.filtersSubject.getValue(),
+            searchString: this.searchString,
+        });
+        if (this.searchString && this.router.url.startsWith('/e-com/product/')) {
+            this.router.navigate(['/e-com']);
+        }
+        this.mobileSearchOpen = false;
     }
 
     clearInput() {

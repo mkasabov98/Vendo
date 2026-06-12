@@ -1,8 +1,8 @@
 import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
-import { getCartProductsResponse, updateCartProductResponse } from "../models/cart.models";
+import { cartProduct, getCartProductsResponse, updateCartProductResponse } from "../models/cart.models";
 import { environment } from "../../../environments/environment";
-import { BehaviorSubject, catchError, EMPTY, map, Observable, of, tap } from "rxjs";
+import { BehaviorSubject, catchError, EMPTY, map, Observable, of, Subject, tap } from "rxjs";
 import { ToastService } from "../../shared/services/toast.service";
 
 import { loadStripe, Stripe } from "@stripe/stripe-js";
@@ -14,6 +14,7 @@ export class CartService {
     public cartItemsSubject$ = new BehaviorSubject<number>(0);
     public discountSubject$ = new BehaviorSubject<{ code: string; percentage: number } | null>(null);
     public unavailableItems$ = new BehaviorSubject<boolean>(false);
+    public cartSynced$ = new Subject<getCartProductsResponse>();
     private stripePromise: Promise<Stripe | null>;
 
     constructor(private http: HttpClient, private toastService: ToastService) {
@@ -45,7 +46,7 @@ export class CartService {
     }
 
     public updateLocalCart(productId: number, quantity: number) {
-        let localCart: { productId: number; productQuantity: number }[] = JSON.parse(localStorage.getItem("localCart") || "");
+        let localCart: { productId: number; productQuantity: number }[] = JSON.parse(localStorage.getItem("localCart") || "[]");
         if (!localCart) localCart = [];
 
         const productIndex = localCart.findIndex((x) => x.productId === productId);

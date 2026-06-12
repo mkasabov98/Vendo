@@ -63,9 +63,9 @@ Review.init(
         modelName: "Review",
         indexes: [
             {
-                unique: false,
-                fields: ["userId", "orderId", "productId"]
-            }
+                unique: true,
+                fields: ["userId", "productId"],
+            },
         ]
     }
 );

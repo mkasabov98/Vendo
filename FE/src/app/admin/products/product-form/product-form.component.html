@@ -92,8 +92,11 @@
         </div>
 
         <div class="form-field">
-            <label>Image URL</label>
+            <label>Image URL @if (mode !== 'edit') { <span class="required">*</span> }</label>
             <input pInputText formControlName="imageUrl" placeholder="https://..." class="full-width" />
+            @if (form.get("imageUrl")?.invalid && form.get("imageUrl")?.touched) {
+                <small class="field-error">Image URL is required</small>
+            }
             @if (form.get("imageUrl")?.value) {
                 <img [src]="form.get('imageUrl')?.value" class="image-preview" (error)="onImageError($event)" alt="Product preview" />
             }

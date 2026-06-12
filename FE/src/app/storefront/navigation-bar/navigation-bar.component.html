@@ -44,7 +44,7 @@
 
 <!-- ── Mobile navbar ──────────────────────────────────────────── -->
 @if (isMobile) {
-    <header class="mobile-navbar">
+    <header class="mobile-navbar" [class.search-active]="mobileSearchOpen">
         <span class="mobile-brand" (click)="goHome()">Shop</span>
 
         <div class="mobile-actions">
@@ -71,11 +71,13 @@
     <div class="mobile-search-bar" [class.open]="mobileSearchOpen">
         <p-iconfield class="mobile-search-field">
             <p-inputicon class="pi pi-search" />
-            <input [(ngModel)]="searchString" type="text" pInputText placeholder="Search products…"
-                (input)="onInputChange($event)" (keydown.enter)="onSearchEnter()" />
-            <p-inputicon class="pi pi-times" (click)="clearInput(); mobileSearchOpen = false"
-                style="cursor:pointer" />
+            <input #mobileSearchInput [(ngModel)]="searchString" type="text" pInputText
+                (keydown.enter)="fireMobileSearch()" />
+            <p-inputicon class="pi pi-times" (click)="clearInput()" style="cursor:pointer" />
         </p-iconfield>
+        <button class="search-send-btn" (click)="fireMobileSearch()">
+            <i class="pi pi-arrow-right"></i>
+        </button>
     </div>
 
     <!-- Mobile menu drawer (bottom sheet) -->
