@@ -18,7 +18,7 @@ export class Cart
     public userId!: number;
     public discountCodeId!: number | null;
 
-    public readonly createadAt!: Date;
+    public readonly createdAt!: Date;
     public readonly updatedAt!: Date;
 }
 

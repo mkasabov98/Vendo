@@ -8,6 +8,7 @@ import { OrderProduct } from "../../models/orderProduct.model";
 import { Op, fn, col, QueryTypes } from "sequelize";
 import sequelize from "../../config/database";
 import { UserRoles } from "../../enums/user-enums.enum";
+import { OrderStatuses } from "../../enums/order-enums.enum";
 import { isAdmin, getStartDate } from "./admin.utils";
 
 // GET /app/admin/dashboard?timeframe=30d&categoryId=1&status=1
@@ -28,8 +29,12 @@ export const getDashboardStats = async (req: AuthRequest, res: Response, next: N
         const startDate = getStartDate(timeframe);
         const dateWhere: any = startDate ? { createdAt: { [Op.gte]: startDate } } : {};
 
-        // Base order filter (timeframe + optional status)
-        const orderWhere: any = { ...dateWhere };
+        // Base order filter (timeframe + optional status). Exclude Pending/Cancelled by default
+        // so revenue and profit stats reflect only fulfilled orders.
+        const orderWhere: any = {
+            ...dateWhere,
+            status: { [Op.notIn]: [OrderStatuses.Pending, OrderStatuses.Cancelled] },
+        };
         if (statusVal !== null) orderWhere.status = statusVal;
 
         // Category filter: collect order IDs containing products in that category
@@ -85,7 +90,9 @@ export const getDashboardStats = async (req: AuthRequest, res: Response, next: N
         // Top products — raw SQL avoids ONLY_FULL_GROUP_BY issues
         const dateClause = startDate ? "AND o.createdAt >= :startDate" : "";
         const catClause = categoryId !== null ? "AND p.productCategoryId = :categoryId" : "";
-        const statusClause = statusVal !== null ? "AND o.status = :statusVal" : "";
+        const statusClause = statusVal !== null
+            ? "AND o.status = :statusVal"
+            : `AND o.status NOT IN (${OrderStatuses.Pending}, ${OrderStatuses.Cancelled})`;
 
         const topProducts: any[] = await sequelize.query(
             `SELECT op.productId,

@@ -2,6 +2,13 @@
 
     <span class="checkout-title">Checkout</span>
 
+    @if (hasUnavailableItems) {
+        <div class="unavailable-banner">
+            <i class="pi pi-exclamation-triangle"></i>
+            <span>Your cart contains unavailable items. Please remove them before proceeding.</span>
+        </div>
+    }
+
     <!-- Step indicator -->
     <div class="step-indicator">
         <div class="step-item">
@@ -123,6 +130,26 @@
     <!-- Step 2: Payment -->
     @if (currentStep === 2) {
         <div class="step-body">
+            <div class="test-card-notice">
+                <div class="test-card-notice-header">
+                    <i class="pi pi-info-circle"></i>
+                    <span>This is a demo project &mdash; use a Stripe test card</span>
+                </div>
+                <div class="test-card-notice-body">
+                    <div class="test-card-row">
+                        <span class="test-card-label">Card number</span>
+                        <span class="test-card-value">4242 4242 4242 4242</span>
+                    </div>
+                    <div class="test-card-row">
+                        <span class="test-card-label">Expiry</span>
+                        <span class="test-card-value">Any future date (e.g. 12/26)</span>
+                    </div>
+                    <div class="test-card-row">
+                        <span class="test-card-label">CVC</span>
+                        <span class="test-card-value">Any 3 digits (e.g. 123)</span>
+                    </div>
+                </div>
+            </div>
             <div id="card-element" class="card-element"></div>
             @if (cardError) {
                 <p-message severity="error" size="small" variant="simple">{{ cardError }}</p-message>

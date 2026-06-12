@@ -29,6 +29,7 @@ export class LoginComponent implements OnInit, OnDestroy {
     @Output() loginSuccess = new EventEmitter<void>();
 
     public visible = false;
+    public isLoading = false;
     public isMobile = typeof window !== "undefined" && window.innerWidth <= 768;
 
     public loginForm: FormGroup = this.formBuilder.group({
@@ -53,9 +54,12 @@ export class LoginComponent implements OnInit, OnDestroy {
 
     onHideDialog() {
         this.loginForm.reset();
+        this.isLoading = false;
     }
 
     onFormSubmit() {
+        if (this.isLoading) return;
+        this.isLoading = true;
         this.authService
             .login({
                 email: this.loginForm.controls["email"].value,
@@ -98,10 +102,13 @@ export class LoginComponent implements OnInit, OnDestroy {
                         this.cartService.cartItemsSubject$.next(
                             res.items.reduce((acc, curr) => acc + curr.quantity!, 0)
                         );
+                        this.cartService.cartSynced$.next(res);
                     }
+                    this.isLoading = false;
                 },
                 (error) => {
                     this.toastService.show(error.error.message, error.error.typeOfToast ?? "error");
+                    this.isLoading = false;
                 }
             );
     }

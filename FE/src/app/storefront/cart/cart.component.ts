@@ -2,12 +2,12 @@ import { Component, OnDestroy, OnInit } from "@angular/core";
 import { CartTableComponent } from "../cart-table/cart-table.component";
 import { ProcessOrderComponent } from "../process-order/process-order.component";
 import { AuthService } from "../../auth/services/auth.service";
-import { loggedUser } from "../../auth/models/auth.models";
+import { loggedUser, UserRoles } from "../../auth/models/auth.models";
 import { NO_USER } from "../../shared/constants/constants";
 import { Subject, takeUntil } from "rxjs";
 import { CartService } from "../services/cart.service";
 import { ButtonModule } from "primeng/button";
-import { RouterLink } from "@angular/router";
+import { Router, RouterLink } from "@angular/router";
 
 @Component({
     selector: "app-cart",
@@ -25,11 +25,14 @@ export class CartComponent implements OnInit, OnDestroy {
     public showStepper = false;
     public paymentComplete = false;
 
-    constructor(private authService: AuthService, private cartService: CartService) {}
+    constructor(private authService: AuthService, private cartService: CartService, private router: Router) {}
 
     ngOnInit(): void {
         this.authService.loggedUserSubject.pipe(takeUntil(this.destroy$)).subscribe((res) => {
             this.loggedUser = res;
+            if (res.role === UserRoles.Admin) {
+                this.router.navigate(['/admin/dashboard']);
+            }
         });
         this.cartService.cartItemsSubject$.subscribe((res) => {
             this.cartItems = res;

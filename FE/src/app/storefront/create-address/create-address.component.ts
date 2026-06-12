@@ -53,6 +53,8 @@ export class CreateAddressComponent implements OnInit, OnDestroy {
     public countries = COUNTRIES;
     public states: state[] = [];
     public cities: city[] = [];
+    public isLoadingStates = false;
+    public isLoadingCities = false;
 
     constructor(
         private addressService: AddressService,
@@ -111,6 +113,7 @@ export class CreateAddressComponent implements OnInit, OnDestroy {
     }
 
     fetchStates(country: { code: string; name: string }) {
+        this.isLoadingStates = true;
         this.addressService
             .getStates(country.code)
             .pipe(take(1))
@@ -118,12 +121,17 @@ export class CreateAddressComponent implements OnInit, OnDestroy {
                 next: (res) => {
                     this.states = res;
                     this.addressForm.controls.state.enable();
+                    this.isLoadingStates = false;
                 },
-                error: (err) => this.toastService.show(err.error?.message ?? "Failed to load states", "warn"),
+                error: (err) => {
+                    this.toastService.show(err.error?.message ?? "Failed to load states", "warn");
+                    this.isLoadingStates = false;
+                },
             });
     }
 
     fetchCities(countryCode: string, stateCode: string) {
+        this.isLoadingCities = true;
         this.addressService
             .getCities(countryCode, stateCode)
             .pipe(take(1))
@@ -131,8 +139,12 @@ export class CreateAddressComponent implements OnInit, OnDestroy {
                 next: (res) => {
                     this.cities = res;
                     this.addressForm.controls.city.enable();
+                    this.isLoadingCities = false;
                 },
-                error: (err) => this.toastService.show(err.error?.message ?? "Failed to load cities", "warn"),
+                error: (err) => {
+                    this.toastService.show(err.error?.message ?? "Failed to load cities", "warn");
+                    this.isLoadingCities = false;
+                },
             });
     }
 

@@ -4,10 +4,11 @@ import { TableModule } from "primeng/table";
 import { AuthService } from "../../auth/services/auth.service";
 import { ToastService } from "../../shared/services/toast.service";
 import { map, Subject, take, takeUntil } from "rxjs";
-import { loggedUser } from "../../auth/models/auth.models";
+import { loggedUser, UserRoles } from "../../auth/models/auth.models";
 import { NO_USER } from "../../shared/constants/constants";
 import { CartService } from "../services/cart.service";
 import { ConfirmDialogModule } from "primeng/confirmdialog";
+import { DrawerModule } from "primeng/drawer";
 import { ConfirmationService } from "primeng/api";
 import { ButtonModule } from "primeng/button";
 import { cartProduct } from "../models/cart.models";
@@ -15,10 +16,11 @@ import { ProductsService } from "../services/products.service";
 import { TagModule } from "primeng/tag";
 import { TooltipModule } from "primeng/tooltip";
 import { getInventoryStatus, getInventorySeverity } from "../../shared/utils/stock.utils";
+import { BreakpointObserver } from "@angular/cdk/layout";
 
 @Component({
     selector: "app-cart-table",
-    imports: [TableModule, ConfirmDialogModule, ButtonModule, TagModule, TooltipModule],
+    imports: [TableModule, ConfirmDialogModule, DrawerModule, ButtonModule, TagModule, TooltipModule],
     providers: [ConfirmationService],
     templateUrl: "./cart-table.component.html",
     styleUrl: "./cart-table.component.scss",
@@ -30,7 +32,11 @@ export class CartTableComponent implements OnInit, OnDestroy {
     public products: cartProduct[] = [];
     public discount: { code: string; percentage: number } | null = null;
 
-    private loggedUser: loggedUser = NO_USER;
+    public loggedUser: loggedUser = NO_USER;
+    public readonly NO_USER = NO_USER;
+    public isMobile = false;
+    public mobileConfirmVisible = false;
+    private pendingRemoveProductId: number | null = null;
 
     get cartSubtotal(): number {
         if (!this.products || !this.products.length) return 0;
@@ -56,12 +62,19 @@ export class CartTableComponent implements OnInit, OnDestroy {
         if (!this.discount) return this.cartSubtotal.toFixed(2);
         return (this.cartSubtotal - this.cartSubtotal * (this.discount.percentage / 100)).toFixed(2);
     }
-    constructor(private authService: AuthService, private toastService: ToastService, private cartService: CartService, private confirmationService: ConfirmationService, private productsService: ProductsService, private router: Router) {}
+    constructor(private authService: AuthService, private toastService: ToastService, private cartService: CartService, private confirmationService: ConfirmationService, private productsService: ProductsService, private router: Router, private breakpointObserver: BreakpointObserver) {}
 
     ngOnInit(): void {
+        this.breakpointObserver
+            .observe(['(max-width: 768px)'])
+            .pipe(takeUntil(this.destroy$))
+            .subscribe(result => this.isMobile = result.matches);
+
         this.authService.loggedUserSubject.pipe(takeUntil(this.destroy$)).subscribe((res) => {
             this.loggedUser = res;
-            this.fetchCartProducts();
+            if (res.role !== UserRoles.Admin) {
+                this.fetchCartProducts();
+            }
         });
 
         this.cartService.cartItemsSubject$.pipe(takeUntil(this.destroy$)).subscribe((count) => {
@@ -73,6 +86,18 @@ export class CartTableComponent implements OnInit, OnDestroy {
 
         this.cartService.discountSubject$.pipe(takeUntil(this.destroy$)).subscribe((discount) => {
             this.discount = discount;
+        });
+
+        this.cartService.cartSynced$.pipe(takeUntil(this.destroy$)).subscribe((data) => {
+            this.products = data.items.map((x) => ({
+                ...x,
+                inventoryStatus: getInventoryStatus(x.stock),
+                severityStatus: getInventorySeverity(x.stock),
+            }));
+            if (data.discount) {
+                this.cartService.discountSubject$.next(data.discount);
+            }
+            this.cartService.unavailableItems$.next(this.hasUnavailableItems);
         });
     }
 
@@ -184,6 +209,11 @@ export class CartTableComponent implements OnInit, OnDestroy {
     }
 
     openConfirmDialog(productId: number, prevQuantity: number) {
+        if (this.isMobile) {
+            this.pendingRemoveProductId = productId;
+            this.mobileConfirmVisible = true;
+            return;
+        }
         this.confirmationService.confirm({
             message: "Are you sure you want to remove the product from your cart?",
             header: "Remove product",
@@ -202,10 +232,22 @@ export class CartTableComponent implements OnInit, OnDestroy {
                 this.updateProductQuantity(productId, 0);
             },
             reject: () => {
-                this.toastService.show("Product has not been removed from cart.");
                 this.updateCart(productId, prevQuantity);
             },
         });
+    }
+
+    confirmMobileRemove() {
+        if (this.pendingRemoveProductId !== null) {
+            this.updateProductQuantity(this.pendingRemoveProductId, 0);
+        }
+        this.mobileConfirmVisible = false;
+        this.pendingRemoveProductId = null;
+    }
+
+    cancelMobileRemove() {
+        this.mobileConfirmVisible = false;
+        this.pendingRemoveProductId = null;
     }
 
     removeUnavailable(productId: number) {

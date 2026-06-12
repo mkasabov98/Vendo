@@ -22,6 +22,14 @@ export const ORDER_STATUS_SEVERITY: Record<OrderStatus, "warn" | "info" | "secon
     [OrderStatus.Cancelled]: "danger",
 };
 
+export const ORDER_STATUS_TOOLTIP: Record<OrderStatus, string> = {
+    [OrderStatus.Pending]: "Payment is being processed",
+    [OrderStatus.Paid]: "Payment confirmed — order is being prepared",
+    [OrderStatus.Shipped]: "Your order is on the way",
+    [OrderStatus.Delivered]: "Order has been delivered",
+    [OrderStatus.Cancelled]: "Order was cancelled",
+};
+
 export interface OrderProduct {
     productId: number;
     name: string;

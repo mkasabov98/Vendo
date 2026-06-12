@@ -21,6 +21,7 @@ interface WebhookRequest extends Request {
 }
 
 const STRIPE_WEBHOOK_SECRET = process.env.STRIPE_LOCAL_WEBHOOK_SECRET;
+if (!STRIPE_WEBHOOK_SECRET) throw new Error("STRIPE_LOCAL_WEBHOOK_SECRET is not set — server cannot start without it");
 
 export const handleStripeWebhook = async (req: WebhookRequest, res, next: NextFunction) => {
     const sig = req.headers["stripe-signature"] as string;
@@ -122,7 +123,15 @@ export const handleStripeWebhook = async (req: WebhookRequest, res, next: NextFu
     if (event.type === "payment_intent.payment_failed" || event.type === "payment_intent.canceled") {
         const paymentIntent = event.data.object as Stripe.PaymentIntent;
         try {
-            await Order.update({ status: OrderStatuses.Cancelled }, { where: { stripePaymentIntentId: paymentIntent.id, status: OrderStatuses.Pending } });
+            const order = await Order.findOne({
+                where: { stripePaymentIntentId: paymentIntent.id, status: OrderStatuses.Pending },
+            });
+            if (order) {
+                await order.update({ status: OrderStatuses.Cancelled });
+                if (order.discountCodeId) {
+                    await DiscountCode.update({ used: false }, { where: { id: order.discountCodeId } });
+                }
+            }
             console.log(`Order cancelled due to ${event.type} — payment intent ${paymentIntent.id}`);
         } catch (error) {
             console.error(`Failed to cancel order for payment intent ${paymentIntent.id}`, error);
@@ -130,6 +139,28 @@ export const handleStripeWebhook = async (req: WebhookRequest, res, next: NextFu
     }
 
     return res.sendStatus(200);
+};
+
+export const cancelOrder = async (req: AuthRequest, res: Response, next: NextFunction) => {
+    try {
+        if (req.user?.role !== UserRoles.User) throw { status: 401, message: "Unauthorized" };
+
+        const orderId = parseInt(req.params.orderId, 10);
+        const order = await Order.findOne({ where: { id: orderId, userId: req.user.id } });
+        if (!order) throw { status: 404, message: "Order not found" };
+        if (order.status !== OrderStatuses.Pending)
+            throw { status: 400, message: "Only pending orders can be cancelled" };
+
+        await order.update({ status: OrderStatuses.Cancelled });
+
+        if (order.discountCodeId) {
+            await DiscountCode.update({ used: false }, { where: { id: order.discountCodeId } });
+        }
+
+        res.status(200).json({ message: "Order cancelled" });
+    } catch (error) {
+        next(error);
+    }
 };
 
 export const getUserOrders = async (req: AuthRequest, res: Response, next: NextFunction) => {
@@ -218,9 +249,19 @@ export const createPaymentIntent = async (req: AuthRequest, res: Response, next:
         let discountAmount = 0;
 
         if (discountCode) {
-            if (discountCode.used || new Date(discountCode.expirationDate) < new Date()) {
+            if (new Date(discountCode.expirationDate) < new Date()) {
                 await Cart.update({ discountCodeId: null }, { where: { id: userCart.id } });
                 throw { status: 400, message: "Your discount code has expired and has been removed." };
+            }
+            // Atomic reservation: mark used=true only if it's still unused.
+            // This prevents two concurrent checkouts from both applying the same code.
+            const [reservedCount] = await DiscountCode.update(
+                { used: true },
+                { where: { id: discountCode.id, used: false } },
+            );
+            if (reservedCount === 0) {
+                await Cart.update({ discountCodeId: null }, { where: { id: userCart.id } });
+                throw { status: 400, message: "This discount code has already been used." };
             }
             discountAmount = subtotal * (Number(discountCode.discountPercentage) / 100);
         }
@@ -272,6 +313,12 @@ export const createPaymentIntent = async (req: AuthRequest, res: Response, next:
             });
         } catch (error) {
             await transaction.rollback();
+            // Release the discount code reservation so the user can retry
+            if (discountCode) {
+                await DiscountCode.update({ used: false }, { where: { id: discountCode.id } }).catch((e) =>
+                    console.error(`Failed to release discount code ${discountCode!.id}`, e),
+                );
+            }
             // Cancel the orphaned payment intent so the user is never charged
             try {
                 await stripe.paymentIntents.cancel(paymentIntent.id);

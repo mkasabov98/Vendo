@@ -1,19 +1,21 @@
 <div class="cart-table-wrapper">
     <div class="header-wrapper">
         <span class="header">Products in cart:</span>
-        <span
-            [pTooltip]="hasUnavailableItems ? 'Remove unavailable items before checking out' : ''"
-            tooltipPosition="bottom">
-            <p-button
-                class="checkout-btn"
-                label="Checkout"
-                icon="pi pi-arrow-down"
-                iconPos="right"
-                size="small"
-                [disabled]="hasUnavailableItems"
-                (onClick)="scrollToCheckout()"
-            />
-        </span>
+        @if (loggedUser.id !== NO_USER.id) {
+            <span
+                [pTooltip]="hasUnavailableItems ? 'Remove unavailable items before checking out' : ''"
+                tooltipPosition="bottom">
+                <p-button
+                    class="checkout-btn"
+                    label="Checkout"
+                    icon="pi pi-arrow-down"
+                    iconPos="right"
+                    size="small"
+                    [disabled]="hasUnavailableItems"
+                    (onClick)="scrollToCheckout()"
+                />
+            </span>
+        }
     </div>
 
     @if (hasUnavailableItems) {
@@ -51,6 +53,12 @@
                                     <span class="product-unit-price">${{ product.price }} each</span>
                                     <p-tag [value]="product.inventoryStatus" [severity]="product.severityStatus" />
                                 </div>
+                                @if (product.quantity >= product.stock && product.stock > 0) {
+                                    <div class="stock-limit-notice">
+                                        <i class="pi pi-info-circle"></i>
+                                        <span>Maximum available quantity reached</span>
+                                    </div>
+                                }
                             }
                         </div>
                     </td>
@@ -70,11 +78,16 @@
                                     <i class="pi pi-minus"></i>
                                 </button>
                                 <span class="qty-value">{{ product.quantity }}</span>
-                                <button class="qty-btn"
-                                    [disabled]="product.quantity >= product.stock"
-                                    (click)="handleAction(product.productId, product.quantity, 'increment')">
-                                    <i class="pi pi-plus"></i>
-                                </button>
+                                <span
+                                    [pTooltip]="product.quantity >= product.stock ? 'Maximum available stock reached' : ''"
+                                    tooltipPosition="top"
+                                    style="display:inline-flex">
+                                    <button class="qty-btn"
+                                        [disabled]="product.quantity >= product.stock"
+                                        (click)="handleAction(product.productId, product.quantity, 'increment')">
+                                        <i class="pi pi-plus"></i>
+                                    </button>
+                                </span>
                             </div>
                         }
                     </td>
@@ -107,6 +120,32 @@
     </div>
 </div>
 
-<div class="card flex justify-center gap-2">
-    <p-confirmdialog />
-</div>
+<p-confirmdialog />
+
+<p-drawer
+    [(visible)]="mobileConfirmVisible"
+    position="bottom"
+    styleClass="mobile-form-drawer"
+>
+    <ng-template #header>
+        <span class="drawer-form-title">Remove product</span>
+    </ng-template>
+    <div class="mobile-confirm-content">
+        <p class="confirm-message">Are you sure you want to remove this product from your cart?</p>
+        <div class="confirm-actions">
+            <p-button
+                label="Don't remove"
+                severity="secondary"
+                [outlined]="true"
+                (onClick)="cancelMobileRemove()"
+                styleClass="w-full"
+            />
+            <p-button
+                label="Remove"
+                severity="danger"
+                (onClick)="confirmMobileRemove()"
+                styleClass="w-full"
+            />
+        </div>
+    </div>
+</p-drawer>

@@ -201,7 +201,7 @@ export class ProductFormComponent implements OnDestroy {
     }
 
     onImageError(event: Event) {
-        (event.target as HTMLImageElement).src = "https://s13emagst.akamaized.net/products/92844/92843211/images/res_dbe5508e65ad2167a08d5b3d0dc6b4fd.jpg";
+        (event.target as HTMLImageElement).src = "https://placehold.co/400x300?text=No+Image";
     }
 
     private buildForm(product?: AdminProduct) {
@@ -218,7 +218,7 @@ export class ProductFormComponent implements OnDestroy {
             supplyPrice: [product?.supplyPrice ?? null, [Validators.required, Validators.min(0.01)]],
             margin: [product?.margin ?? 0, [Validators.required, Validators.min(0)]],
             stock: [initialStock, [Validators.required, Validators.min(0)]],
-            imageUrl: [product?.imageUrl ?? ""],
+            imageUrl: [product?.imageUrl ?? "", this.mode !== "edit" ? [Validators.required] : []],
             isActive: [{ value: forceInactive ? false : (product?.isActive ?? true), disabled: forceInactive }],
         });
 

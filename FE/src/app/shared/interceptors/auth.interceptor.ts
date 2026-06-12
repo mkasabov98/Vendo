@@ -54,10 +54,24 @@ export const authInterceptor: HttpInterceptorFn = (
     const jwt = localStorage.getItem('jwt');
 
     if (jwt) {
-        const payload = JSON.parse(atob(jwt.split('.')[1]));
+        let payload: { exp: number } | null = null;
+        try {
+            payload = JSON.parse(atob(jwt.split('.')[1]));
+        } catch {
+            localStorage.removeItem('jwt');
+            router.navigate(['/e-com']);
+            return throwError(
+                () =>
+                    new HttpErrorResponse({
+                        error: { message: 'Session expired', typeOfToast: 'info' },
+                        status: 401,
+                        statusText: 'Unauthorized',
+                    })
+            );
+        }
         const now = Math.floor(Date.now() / 1000);
 
-        if (payload.exp < now) {
+        if (payload!.exp < now) {
             localStorage.removeItem('jwt');
             router.navigate(['/e-com']);
             return throwError(
