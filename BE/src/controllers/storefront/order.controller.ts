@@ -20,8 +20,8 @@ interface WebhookRequest extends Request {
     rawBody: Buffer;
 }
 
-const STRIPE_WEBHOOK_SECRET = process.env.STRIPE_LOCAL_WEBHOOK_SECRET;
-if (!STRIPE_WEBHOOK_SECRET) throw new Error("STRIPE_LOCAL_WEBHOOK_SECRET is not set — server cannot start without it");
+const STRIPE_WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET || process.env.STRIPE_LOCAL_WEBHOOK_SECRET;
+if (!STRIPE_WEBHOOK_SECRET) throw new Error("STRIPE_WEBHOOK_SECRET (or STRIPE_LOCAL_WEBHOOK_SECRET in dev) is not set — server cannot start without it");
 
 export const handleStripeWebhook = async (req: WebhookRequest, res, next: NextFunction) => {
     const sig = req.headers["stripe-signature"] as string;

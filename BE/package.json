@@ -5,7 +5,8 @@
     "type": "commonjs",
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
-        "start": "set NODE_ENV=prod && ts-node src/server.ts",
+        "build": "tsc",
+        "start": "node dist/server.js",
         "dev": "set NODE_ENV=dev && nodemon src/server.ts",
         "seed": "ts-node src/seed.ts"
     },
