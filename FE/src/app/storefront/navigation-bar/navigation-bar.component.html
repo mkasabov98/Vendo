@@ -2,9 +2,10 @@
 @if (!isMobile) {
     <p-toolbar>
         <ng-template #start>
-            <div class="home-button-wrapper">
-                <p-button (onClick)="goHome()">Home</p-button>
-            </div>
+            <a class="navbar-logo" (click)="goHome()">
+                <span class="navbar-logo-icon" aria-hidden="true"></span>
+                <span>Vendo</span>
+            </a>
         </ng-template>
 
         @if (showSearch) {
@@ -45,7 +46,10 @@
 <!-- ── Mobile navbar ──────────────────────────────────────────── -->
 @if (isMobile) {
     <header class="mobile-navbar" [class.search-active]="mobileSearchOpen">
-        <span class="mobile-brand" (click)="goHome()">Shop</span>
+        <a class="navbar-logo" (click)="goHome()">
+            <span class="navbar-logo-icon" aria-hidden="true"></span>
+            <span>Vendo</span>
+        </a>
 
         <div class="mobile-actions">
             @if (showSearch) {

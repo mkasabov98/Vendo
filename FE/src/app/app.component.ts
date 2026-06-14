@@ -6,7 +6,6 @@ import { AuthService } from "./auth/services/auth.service";
 import { CartService } from "./storefront/services/cart.service";
 import { concatMap, of, take } from "rxjs";
 import { UserRoles } from "./auth/models/auth.models";
-// import { NavigationBarComponent } from "./components/navigation-bar/navigation-bar.component";
 
 @Component({
     selector: "app-root",
@@ -22,7 +21,6 @@ export class AppComponent implements OnInit {
     constructor(private authService: AuthService, private toastService: ToastService, private cartService: CartService) {}
     ngOnInit(): void {
         const checkJWT = this.authService.checkJWT();
-        // toastService not working from app component
         if (checkJWT[0] && !checkJWT[1]) {
             this.authService.loggedUserSubject
                 .pipe(
