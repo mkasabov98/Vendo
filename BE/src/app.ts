@@ -4,7 +4,6 @@ import cors from "cors";
 import sequelize from "./config/database";
 
 import "./models/index";
-import { DiscountCode } from "./models/discountCode.model";
 //Routes
 import adminRoutes from "./routes/admin/index";
 import storefrontRoutes from "./routes/storefront/index";
@@ -40,18 +39,16 @@ app.use("/app/user", userRoutes);
 
 app.use(errorHandler);
 
-// DiscountCodes must exist before sequelize.sync() alters Carts and Orders,
-// both of which have discountCodeId FK columns referencing this table.
-// DB_SYNC=true enables { alter: true } for dev/initial-prod-bootstrap; once the
-// schema is stable, leave it unset so boots only run authenticate + start jobs.
-const syncOpts = process.env.DB_SYNC === "true" ? { alter: true } : {};
-const syncPromise =
+// DB_SYNC=true runs sequelize.sync({ alter: true }) to create/update tables.
+// Use on first deploy to a fresh DB, then unset so subsequent boots only
+// authenticate (faster, and avoids accidental schema changes from model edits).
+const startupPromise =
     process.env.DB_SYNC === "true"
-        ? DiscountCode.sync(syncOpts).then(() => sequelize.sync(syncOpts))
+        ? sequelize.sync({ alter: true })
         : sequelize.authenticate();
 
-syncPromise
+startupPromise
     .then(() => startStaleOrderReconciliation())
-    .catch((err) => console.error("Sequelize startup error:", err.message));
+    .catch((err) => console.error("Sequelize startup error:", err));
 
 export default app;
