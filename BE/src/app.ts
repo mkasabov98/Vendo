@@ -1,5 +1,5 @@
 require("dotenv").config();
-import express, { NextFunction, Request, Response } from "express";
+import express from "express";
 import cors from "cors";
 import sequelize from "./config/database";
 
@@ -42,9 +42,16 @@ app.use(errorHandler);
 
 // DiscountCodes must exist before sequelize.sync() alters Carts and Orders,
 // both of which have discountCodeId FK columns referencing this table.
-DiscountCode.sync({ alter: true })
-    .then(() => sequelize.sync({ alter: true }))
+// DB_SYNC=true enables { alter: true } for dev/initial-prod-bootstrap; once the
+// schema is stable, leave it unset so boots only run authenticate + start jobs.
+const syncOpts = process.env.DB_SYNC === "true" ? { alter: true } : {};
+const syncPromise =
+    process.env.DB_SYNC === "true"
+        ? DiscountCode.sync(syncOpts).then(() => sequelize.sync(syncOpts))
+        : sequelize.authenticate();
+
+syncPromise
     .then(() => startStaleOrderReconciliation())
-    .catch((err) => console.error("Sequelize sync error:", err.message));
+    .catch((err) => console.error("Sequelize startup error:", err.message));
 
 export default app;
