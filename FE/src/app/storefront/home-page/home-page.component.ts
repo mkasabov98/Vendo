@@ -84,7 +84,7 @@ export class HomePage implements OnInit, OnDestroy {
             .subscribe((res) => {
                 this.products = res.data;
                 this.paginationParams.totalRecords = res.meta.totalItems;
-                window.scrollTo({ top: 0, behavior: "smooth" });
+                document.querySelector(".main-content")?.scrollTo({ top: 0, behavior: "smooth" });
                 this.loading = false;
             });
     }
