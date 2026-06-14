@@ -6,9 +6,35 @@ p-toolbar {
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
 }
 
-.home-button-wrapper {
-    margin: 0.5rem;
-    width: 12vw;
+.navbar-logo {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    cursor: pointer;
+    text-decoration: none;
+    color: var(--p-primary-600);
+    padding: 0.3rem 0.5rem;
+    border-radius: var(--p-border-radius-md);
+    transition: opacity 0.15s;
+    user-select: none;
+
+    &:hover { opacity: 0.75; }
+
+    .navbar-logo-icon {
+        display: inline-block;
+        width: 22px;
+        height: 22px;
+        flex-shrink: 0;
+        background-color: var(--p-primary-600);
+        mask: url('/logo.svg') center / contain no-repeat;
+        -webkit-mask: url('/logo.svg') center / contain no-repeat;
+    }
+
+    span {
+        font-size: 1.2rem;
+        font-weight: 800;
+        letter-spacing: -0.04em;
+    }
 }
 
 .search-bar {
@@ -31,7 +57,6 @@ p-toolbar {
 }
 
 @media (max-width: 1024px) {
-    .home-button-wrapper { width: auto; }
     .search-bar { width: 14rem; }
 }
 
@@ -54,13 +79,6 @@ p-toolbar {
     }
 }
 
-.mobile-brand {
-    font-size: 1.15rem;
-    font-weight: 800;
-    color: var(--p-primary-600);
-    letter-spacing: -0.03em;
-    cursor: pointer;
-}
 
 .mobile-actions {
     display: flex;
