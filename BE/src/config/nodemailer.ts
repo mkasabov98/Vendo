@@ -13,17 +13,21 @@ if (!process.env.GMAIL_USER || !process.env.GMAIL_APP_PASSWORD) {
     throw new Error("GMAIL_USER or GMAIL_APP_PASSWORD is not defined in environment variables.");
 }
 
-const transportOptions: SMTPTransport.Options = {
+// `family: 4` forces an IPv4-only DNS lookup so no IPv6 address is ever attempted
+// (Node 20+ otherwise still tries IPv6 via Happy Eyeballs). Not in nodemailer's
+// types, but honored at runtime — hence the assertion.
+const transportOptions = {
     host: "smtp.gmail.com",
     port: 465,
     secure: true,
+    family: 4,
     connectionTimeout: 10000,
     greetingTimeout: 10000,
     auth: {
         user: process.env.GMAIL_USER,
         pass: process.env.GMAIL_APP_PASSWORD,
     },
-};
+} as SMTPTransport.Options;
 
 const transporter = nodemailer.createTransport(transportOptions);
 
