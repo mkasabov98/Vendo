@@ -203,6 +203,7 @@
                                 [toggleMask]="true"
                                 styleClass="w-full"
                                 inputStyleClass="w-full"
+                                (onFocus)="onSecurityInputFocus()"
                             />
                             <label for="currentPassword">Current password</label>
                         </p-floatlabel>
@@ -216,6 +217,7 @@
                                 inputStyleClass="w-full"
                                 [pTooltip]="passwordTooltip"
                                 tooltipPosition="right"
+                                (onFocus)="onSecurityInputFocus()"
                             >
                                 <ng-template #passwordTooltip>
                                     <ul>
@@ -238,6 +240,7 @@
                                 [toggleMask]="true"
                                 styleClass="w-full"
                                 inputStyleClass="w-full"
+                                (onFocus)="onSecurityInputFocus()"
                             />
                             <label for="confirmPassword">Confirm new password</label>
                         </p-floatlabel>
@@ -246,7 +249,7 @@
                         }
 
                         <div class="password-actions">
-                            <p-button
+                            <p-button #passwordSubmitBtn
                                 type="submit"
                                 label="Update password"
                                 icon="pi pi-check"

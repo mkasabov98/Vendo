@@ -21,6 +21,7 @@ export const appConfig: ApplicationConfig = {
         theme: {
             preset: ECommercePreset,
             options: {
+                darkModeSelector: false,
                 cssLayer: {
                     name: 'primeng',
                     order: 'app-styles, primeng'
