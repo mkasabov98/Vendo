@@ -1,4 +1,4 @@
-import transporter from "../config/nodemailer";
+import transporter from "../config/mailer";
 
 interface OrderItem {
     name: string;
