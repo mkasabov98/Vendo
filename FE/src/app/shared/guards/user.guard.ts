@@ -12,7 +12,7 @@ export const userGuard: CanActivateFn = (route, state) => {
         take(1),
         map((res) => {
             if (res?.role !== UserRoles.User) {
-                return router.createUrlTree(['e-com/']);
+                return router.createUrlTree(['vendo/']);
             }
             return true;
         })

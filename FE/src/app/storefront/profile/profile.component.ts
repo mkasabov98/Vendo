@@ -1,4 +1,4 @@
-import { Component, OnInit } from "@angular/core";
+import { Component, ElementRef, OnInit, ViewChild } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { Router } from "@angular/router";
 import { AbstractControl, FormControl, FormGroup, ReactiveFormsModule, ValidationErrors, Validators } from "@angular/forms";
@@ -52,6 +52,8 @@ export class ProfileComponent implements OnInit {
     public addressesLoading = true;
     public reOrderingId: number | null = null;
     public isSettingDefaultId: number | null = null;
+
+    @ViewChild("passwordSubmitBtn", { read: ElementRef }) passwordSubmitBtn?: ElementRef<HTMLElement>;
 
     public submittingPassword = false;
     public passwordForm = new FormGroup(
@@ -198,11 +200,11 @@ export class ProfileComponent implements OnInit {
     }
 
     navigateToProduct(productId: number) {
-        this.router.navigate(["/e-com/product", productId]);
+        this.router.navigate(["/vendo/product", productId]);
     }
 
     reviewProduct(productId: number) {
-        this.router.navigate(["/e-com/product", productId], { queryParams: { tab: "reviews" } });
+        this.router.navigate(["/vendo/product", productId], { queryParams: { tab: "reviews" } });
     }
 
     onImageError(event: Event) {
@@ -239,6 +241,15 @@ export class ProfileComponent implements OnInit {
                     this.submittingPassword = false;
                 },
             });
+    }
+
+    onSecurityInputFocus() {
+        if (!window.matchMedia("(max-width: 768px)").matches) return;
+        // Wait for the mobile keyboard animation to start so the visual
+        // viewport has shrunk before we compute the scroll position.
+        setTimeout(() => {
+            this.passwordSubmitBtn?.nativeElement.scrollIntoView({ behavior: "smooth", block: "end" });
+        }, 300);
     }
 
     getStatusLabel(status: OrderStatus): string {

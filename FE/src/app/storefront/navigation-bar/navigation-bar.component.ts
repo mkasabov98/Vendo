@@ -101,14 +101,14 @@ export class NavigationBarComponent implements OnInit, OnDestroy {
                     ...this.productsService.filtersSubject.getValue(),
                     searchString,
                 });
-                if (searchString && this.router.url.startsWith('/e-com/product/')) {
-                    this.router.navigate(['/e-com']);
+                if (searchString && this.router.url.startsWith('/vendo/product/')) {
+                    this.router.navigate(['/vendo']);
                 }
             });
     }
 
     get showSearch(): boolean {
-        return this.router.url === '/e-com' || this.router.url.startsWith('/e-com/product/');
+        return this.router.url === '/vendo' || this.router.url.startsWith('/vendo/product/');
     }
 
     onInputChange(event: Event) {
@@ -122,12 +122,12 @@ export class NavigationBarComponent implements OnInit, OnDestroy {
             sortBy: undefined,
             searchString: "",
         });
-        this.router.navigate(['/e-com']);
+        this.router.navigate(['/vendo']);
     }
 
     onSearchEnter() {
-        if (this.router.url.startsWith('/e-com/product/')) {
-            this.router.navigate(['/e-com']);
+        if (this.router.url.startsWith('/vendo/product/')) {
+            this.router.navigate(['/vendo']);
         }
     }
 
@@ -137,8 +137,8 @@ export class NavigationBarComponent implements OnInit, OnDestroy {
             ...this.productsService.filtersSubject.getValue(),
             searchString: this.searchString,
         });
-        if (this.searchString && this.router.url.startsWith('/e-com/product/')) {
-            this.router.navigate(['/e-com']);
+        if (this.searchString && this.router.url.startsWith('/vendo/product/')) {
+            this.router.navigate(['/vendo']);
         }
         this.mobileSearchOpen = false;
     }

@@ -127,7 +127,7 @@ export const getAnalyticsBreakdown = async (req: AuthRequest, res: Response, nex
                  JOIN OrderProducts op ON op.orderId = o.id
                  JOIN Products p ON p.id = op.productId
                  JOIN ProductCategories pc ON pc.id = p.productCategoryId
-                 WHERE ${dateF} GROUP BY pc.id, pc.categoryName ORDER BY revenue DESC`,
+                 WHERE ${dateF} GROUP BY pc.id, pc.categoryName ORDER BY revenue DESC LIMIT 10`,
                 { replacements: repl, type: QueryTypes.SELECT },
             ) as Promise<any[]>,
             sequelize.query(
@@ -166,7 +166,7 @@ export const getAnalyticsBreakdown = async (req: AuthRequest, res: Response, nex
                  JOIN Products p ON p.id = op.productId
                  JOIN ProductCategories pc ON pc.id = p.productCategoryId
                  WHERE ${dateF}
-                 GROUP BY pc.id, pc.categoryName ORDER BY marginPct DESC`,
+                 GROUP BY pc.id, pc.categoryName ORDER BY marginPct DESC LIMIT 10`,
                 { replacements: repl, type: QueryTypes.SELECT },
             ) as Promise<any[]>,
             sequelize.query(

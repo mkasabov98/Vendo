@@ -11,7 +11,7 @@ import { cartGuard } from './shared/guards/cart.guard';
 
 export const routes: Routes = [
     {
-        path: 'e-com',
+        path: 'vendo',
         component: LayoutComponent,
         canActivate: [nonAdminGuard],
         children: [
@@ -42,7 +42,7 @@ export const routes: Routes = [
     },
     {
         path: '**',
-        redirectTo: 'e-com',
+        redirectTo: 'vendo',
         pathMatch: 'full',
     },
 ];

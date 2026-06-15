@@ -22,6 +22,9 @@ const allowedOrigins = (process.env.FRONTEND_URL || "http://localhost:4200")
     .split(",")
     .map((o) => o.trim());
 
+// Mobile testing on local network
+// allowedOrigins.push("http://192.168.100.3:4200");
+
 app.use(cors({
     origin: (origin, callback) => {
         if (!origin || allowedOrigins.includes(origin)) return callback(null, true);
