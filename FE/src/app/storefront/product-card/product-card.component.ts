@@ -47,7 +47,7 @@ export class ProductCardComponent implements OnInit, OnDestroy {
     }
 
     openProduct(event$: Event) {
-        this.router.navigate(["/e-com/product", this.product.id]);
+        this.router.navigate(["/vendo/product", this.product.id]);
     }
 
     addToCart(event$: Event) {

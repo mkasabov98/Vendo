@@ -59,7 +59,7 @@ export const authInterceptor: HttpInterceptorFn = (
             payload = JSON.parse(atob(jwt.split('.')[1]));
         } catch {
             localStorage.removeItem('jwt');
-            router.navigate(['/e-com']);
+            router.navigate(['/vendo']);
             return throwError(
                 () =>
                     new HttpErrorResponse({
@@ -73,7 +73,7 @@ export const authInterceptor: HttpInterceptorFn = (
 
         if (payload!.exp < now) {
             localStorage.removeItem('jwt');
-            router.navigate(['/e-com']);
+            router.navigate(['/vendo']);
             return throwError(
                 () =>
                     new HttpErrorResponse({
@@ -87,7 +87,7 @@ export const authInterceptor: HttpInterceptorFn = (
             );
         }
     } else {
-        router.navigate(['/e-com']);
+        router.navigate(['/vendo']);
         return throwError(
             () =>
                 new HttpErrorResponse({

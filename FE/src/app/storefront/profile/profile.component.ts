@@ -200,11 +200,11 @@ export class ProfileComponent implements OnInit {
     }
 
     navigateToProduct(productId: number) {
-        this.router.navigate(["/e-com/product", productId]);
+        this.router.navigate(["/vendo/product", productId]);
     }
 
     reviewProduct(productId: number) {
-        this.router.navigate(["/e-com/product", productId], { queryParams: { tab: "reviews" } });
+        this.router.navigate(["/vendo/product", productId], { queryParams: { tab: "reviews" } });
     }
 
     onImageError(event: Event) {

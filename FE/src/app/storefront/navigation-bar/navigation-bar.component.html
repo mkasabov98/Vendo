@@ -22,7 +22,7 @@
         <ng-template #end>
             <div class="auth-buttons-wrapper">
                 @if (loggedUser.role !== UserRoles.Admin) {
-                    <div class="badge-wrapper" routerLink="/e-com/cart">
+                    <div class="badge-wrapper" routerLink="/vendo/cart">
                         <p-overlaybadge [value]="cartItems">
                             <i class="pi pi-cart-arrow-down"></i>
                         </p-overlaybadge>
@@ -34,7 +34,7 @@
                 }
                 @if (loggedUser.role !== -1) {
                     @if (loggedUser.role === UserRoles.User) {
-                        <p-button routerLink="/e-com/profile">Profile</p-button>
+                        <p-button routerLink="/vendo/profile">Profile</p-button>
                     }
                     <p-button (onClick)="logOut()">Log out</p-button>
                 }
@@ -59,7 +59,7 @@
                 </button>
             }
             @if (loggedUser.role !== UserRoles.Admin) {
-                <button class="nav-icon-btn cart-btn" routerLink="/e-com/cart">
+                <button class="nav-icon-btn cart-btn" routerLink="/vendo/cart">
                     <p-overlaybadge [value]="cartItems">
                         <i class="pi pi-cart-arrow-down"></i>
                     </p-overlaybadge>
@@ -99,7 +99,7 @@
             }
             @if (loggedUser.role !== -1) {
                 @if (loggedUser.role === UserRoles.User) {
-                    <button class="menu-item" routerLink="/e-com/profile" (click)="mobileMenuOpen = false">
+                    <button class="menu-item" routerLink="/vendo/profile" (click)="mobileMenuOpen = false">
                         <i class="pi pi-user"></i>
                         <span>Profile</span>
                     </button>

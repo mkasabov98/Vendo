@@ -259,7 +259,7 @@ export class CartTableComponent implements OnInit, OnDestroy {
     }
 
     navigateToProduct(productId: number) {
-        this.router.navigate(["/e-com/product", productId]);
+        this.router.navigate(["/vendo/product", productId]);
     }
 
     onImageError(event: Event) {
