@@ -80,7 +80,7 @@ export class ProductPageComponent implements OnInit, OnDestroy {
         reviewText: new FormControl<string>(""),
     });
 
-    public breadcrumbHome: MenuItem = { icon: "pi pi-home", routerLink: "/e-com" };
+    public breadcrumbHome: MenuItem = { icon: "pi pi-home", routerLink: "/vendo" };
     public breadcrumbItems: MenuItem[] = [];
 
     constructor(
@@ -145,7 +145,7 @@ export class ProductPageComponent implements OnInit, OnDestroy {
             sortBy: undefined,
             searchString: "",
         });
-        this.router.navigate(["/e-com"]);
+        this.router.navigate(["/vendo"]);
     }
 
     loadReviews(id: number) {

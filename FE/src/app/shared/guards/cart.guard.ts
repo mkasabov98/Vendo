@@ -10,7 +10,7 @@ export const cartGuard: CanActivateFn = (route, state) => {
 
     return authService.loggedUserSubject.pipe(take(1), map((res) => {
         if (res.role === UserRoles.Admin) {
-            return router.createUrlTree(['e-com/']);
+            return router.createUrlTree(['vendo/']);
         }
         return true
     }))

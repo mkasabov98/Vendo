@@ -12,7 +12,7 @@ export const adminGuard: CanActivateFn = (route, state) => {
         take(1),
         map((res) => {
             if (res?.role === UserRoles.Admin) return true;
-            return router.createUrlTree(['/e-com']);
+            return router.createUrlTree(['/vendo']);
         })
     );
 };

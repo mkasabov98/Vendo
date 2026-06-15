@@ -43,7 +43,7 @@ export class AdminLayoutComponent implements OnInit, OnDestroy {
     logout() {
         this.authService.loggedUserSubject.next(NO_USER);
         localStorage.removeItem("jwt");
-        this.router.navigate(["/e-com"]);
+        this.router.navigate(["/vendo"]);
     }
 
     ngOnDestroy() {

@@ -252,6 +252,30 @@
         padding: 0 0.75rem 5rem; // extra bottom padding so FAB doesn't overlap last card
     }
 
+    // Active filter chips: one horizontally-scrollable row instead of wrapping under the grid
+    .results-bar {
+        flex-wrap: nowrap;
+        margin-bottom: 0.75rem; // push the product grid down a little
+    }
+
+    .results-count {
+        flex-shrink: 0;
+    }
+
+    .active-chips {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        scrollbar-width: none; // Firefox
+        -webkit-overflow-scrolling: touch;
+
+        &::-webkit-scrollbar { display: none; } // Chrome/Safari
+
+        .filter-chip {
+            flex-shrink: 0;
+            white-space: nowrap;
+        }
+    }
+
     // FAB to open filters
     .mobile-filter-btn {
         display: flex;
